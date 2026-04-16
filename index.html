@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>رخاء - تسجيل الدخول</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <title>رخاء - دخول العاملين</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -12,410 +12,150 @@
     <div class="auth-wrapper">
         <div class="auth-card">
             <div class="auth-logo">
-                <div class="logo-icon">
-                    <i class="fas fa-gem"></i>
-                </div>
+                <div class="logo-icon"><i class="fas fa-gem"></i></div>
                 <h1>رخاء</h1>
-                <p>للتنمية المستدامة</p>
+                <p>بوابة العاملين</p>
             </div>
 
             <div class="auth-tabs">
                 <button class="auth-tab active" id="loginTab">تسجيل الدخول</button>
-                <button class="auth-tab" id="registerTab">إنشاء حساب جديد</button>
+                <button class="auth-tab" id="registerTab">طلب حساب جديد</button>
             </div>
 
             <!-- نموذج تسجيل الدخول -->
             <form id="loginForm" class="auth-form">
                 <div class="form-group">
                     <label>البريد الإلكتروني</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-envelope"></i>
-                        <input type="email" id="loginEmail" placeholder="example@rakha.sa" required>
-                    </div>
+                    <div class="input-wrapper"><i class="fas fa-envelope"></i><input type="email" id="loginEmail" placeholder="example@rakha.sa" required></div>
                 </div>
                 <div class="form-group">
                     <label>كلمة المرور</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="loginPassword" placeholder="********" required>
-                    </div>
+                    <div class="input-wrapper"><i class="fas fa-lock"></i><input type="password" id="loginPassword" placeholder="********" required></div>
                 </div>
-                <div class="form-options">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="rememberMe"> تذكرني
-                    </label>
-                </div>
-                <button type="submit" class="btn-gold btn-block">
-                    <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
-                </button>
-
-                <!-- فاصل -->
-                <div class="divider">
-                    <span>أو</span>
-                </div>
-
-                <!-- زر تسجيل الدخول بـ Google -->
-                <div id="googleSignInDiv" class="google-signin-container"></div>
+                <button type="submit" class="btn-gold btn-block"><i class="fas fa-sign-in-alt"></i> دخول</button>
+                <div class="auth-note">للعاملين في مكتب رخاء فقط</div>
             </form>
 
-            <!-- نموذج التسجيل -->
+            <!-- نموذج طلب حساب (للعاملين الجدد) -->
             <form id="registerForm" class="auth-form" style="display: none;">
                 <div class="form-group">
                     <label>الاسم الكامل</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-user"></i>
-                        <input type="text" id="registerName" placeholder="محمد أحمد" required>
-                    </div>
+                    <div class="input-wrapper"><i class="fas fa-user"></i><input type="text" id="regName" required></div>
                 </div>
                 <div class="form-group">
-                    <label>البريد الإلكتروني</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-envelope"></i>
-                        <input type="email" id="registerEmail" placeholder="example@rakha.sa" required>
-                    </div>
+                    <label>البريد الإلكتروني الوظيفي</label>
+                    <div class="input-wrapper"><i class="fas fa-envelope"></i><input type="email" id="regEmail" required></div>
                 </div>
                 <div class="form-group">
                     <label>كلمة المرور</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="registerPassword" placeholder="********" required minlength="6">
-                    </div>
+                    <div class="input-wrapper"><i class="fas fa-lock"></i><input type="password" id="regPassword" required minlength="6"></div>
                 </div>
                 <div class="form-group">
                     <label>تأكيد كلمة المرور</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="registerConfirm" placeholder="********" required>
-                    </div>
+                    <div class="input-wrapper"><i class="fas fa-lock"></i><input type="password" id="regConfirm" required></div>
                 </div>
-                <button type="submit" class="btn-gold btn-block">
-                    <i class="fas fa-user-plus"></i> إنشاء حساب
-                </button>
-
-                <!-- فاصل -->
-                <div class="divider">
-                    <span>أو</span>
-                </div>
-
-                <!-- زر التسجيل بـ Google -->
-                <div id="googleSignUpDiv" class="google-signin-container"></div>
+                <button type="submit" class="btn-gold btn-block"><i class="fas fa-paper-plane"></i> إرسال الطلب</button>
+                <p class="auth-note">سيتم مراجعة الطلب من قبل الإدارة</p>
             </form>
 
             <div id="authMessage" class="auth-message"></div>
 
             <div class="auth-footer">
-                <p>بيانات تجريبية للدخول:</p>
+                <p>حسابات تجريبية:</p>
                 <div class="demo-accounts">
-                    <span><i class="fas fa-user-shield"></i> مدير: admin@rakha.sa / admin123</span>
-                    <span><i class="fas fa-user"></i> مستخدم: user@rakha.sa / user123</span>
+                    <span><i class="fas fa-user-tie"></i> admin@rakha.sa / 123456</span>
+                    <span><i class="fas fa-user"></i> user1@rakha.sa / 123456</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Google Sign-In Library -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    
     <script>
-        // ===== تهيئة النظام =====
+        // ---------- تهيئة البيانات الأولية ----------
         function initSystem() {
-            // تهيئة المستخدمين الافتراضيين
             if (!localStorage.getItem('rakha_users')) {
                 const defaultUsers = [
-                    {
-                        id: 1,
-                        name: 'مدير النظام',
-                        email: 'admin@rakha.sa',
-                        password: 'admin123',
-                        role: 'admin',
-                        createdAt: new Date().toISOString()
-                    },
-                    {
-                        id: 2,
-                        name: 'مستخدم تجريبي',
-                        email: 'user@rakha.sa',
-                        password: 'user123',
-                        role: 'user',
-                        createdAt: new Date().toISOString()
-                    }
+                    { id: 1, name: 'مدير النظام', email: 'admin@rakha.sa', password: '123456', role: 'admin', status: 'active', createdAt: new Date().toISOString() },
+                    { id: 2, name: 'موظف أول', email: 'user1@rakha.sa', password: '123456', role: 'user', status: 'active', createdAt: new Date().toISOString() }
                 ];
                 localStorage.setItem('rakha_users', JSON.stringify(defaultUsers));
             }
-            
-            if (!localStorage.getItem('rakha_files')) {
-                localStorage.setItem('rakha_files', JSON.stringify([]));
-            }
+            // تخزين الملفات العامة (public.json)
+            if (!localStorage.getItem('public_files')) localStorage.setItem('public_files', JSON.stringify([]));
+            // تخزين الملفات الخاصة (private.json) - كائن مفتاحه userId
+            if (!localStorage.getItem('private_files')) localStorage.setItem('private_files', JSON.stringify({}));
         }
-
         initSystem();
 
-        // ===== التحقق من جلسة نشطة =====
-        const currentUser = JSON.parse(localStorage.getItem('rakha_current_user'));
-        if (currentUser) {
-            window.location.href = 'home.html';
-        }
+        // ---------- التحقق من الجلسة ----------
+        if (localStorage.getItem('rakha_current_user')) window.location.href = 'home.html';
 
-        // ===== تهيئة Google Sign-In =====
-        function initializeGoogleSignIn() {
-            // Google Client ID - يمكنك استبداله بمعرف العميل الخاص بك
-            const GOOGLE_CLIENT_ID = '238339995391-627kluslmk42koqfe2rm08jgofesteuc.apps.googleusercontent.com';
-            
-            // تهيئة Google Identity Services
-            if (typeof google !== 'undefined' && google.accounts) {
-                // لتسجيل الدخول
-                google.accounts.id.initialize({
-                    client_id: GOOGLE_CLIENT_ID,
-                    callback: handleGoogleResponse,
-                    auto_select: false,
-                    cancel_on_tap_outside: true,
-                    context: 'signin'
-                });
-
-                // زر تسجيل الدخول
-                google.accounts.id.renderButton(
-                    document.getElementById('googleSignInDiv'),
-                    { 
-                        theme: 'outline', 
-                        size: 'large',
-                        type: 'standard',
-                        text: 'signin_with',
-                        shape: 'pill',
-                        width: '100%',
-                        locale: 'ar'
-                    }
-                );
-
-                // زر التسجيل
-                google.accounts.id.renderButton(
-                    document.getElementById('googleSignUpDiv'),
-                    { 
-                        theme: 'outline', 
-                        size: 'large',
-                        type: 'standard',
-                        text: 'signup_with',
-                        shape: 'pill',
-                        width: '100%',
-                        locale: 'ar'
-                    }
-                );
-
-                // تعطيل One Tap
-                google.accounts.id.cancel();
-            } else {
-                console.log('Google library not loaded yet');
-                // إعادة المحاولة بعد ثانية
-                setTimeout(initializeGoogleSignIn, 1000);
-            }
-        }
-
-        // ===== معالجة استجابة Google =====
-        function handleGoogleResponse(response) {
-            try {
-                // فك تشفير JWT token
-                const credential = response.credential;
-                const payload = JSON.parse(atob(credential.split('.')[1]));
-                
-                const googleUser = {
-                    googleId: payload.sub,
-                    email: payload.email,
-                    name: payload.name,
-                    picture: payload.picture,
-                    email_verified: payload.email_verified
-                };
-
-                // التحقق من وجود المستخدم أو إنشائه
-                loginWithGoogle(googleUser);
-            } catch (error) {
-                console.error('Google Sign-In Error:', error);
-                showMessage('حدث خطأ في تسجيل الدخول بـ Google', 'error');
-            }
-        }
-
-        // ===== تسجيل الدخول بـ Google =====
-        function loginWithGoogle(googleUser) {
-            let users = JSON.parse(localStorage.getItem('rakha_users') || '[]');
-            
-            // البحث عن مستخدم بنفس البريد الإلكتروني
-            let user = users.find(u => u.email === googleUser.email);
-            
-            if (!user) {
-                // إنشاء مستخدم جديد
-                user = {
-                    id: Date.now(),
-                    name: googleUser.name,
-                    email: googleUser.email,
-                    picture: googleUser.picture,
-                    googleId: googleUser.googleId,
-                    role: 'user',
-                    createdAt: new Date().toISOString()
-                };
-                users.push(user);
-                localStorage.setItem('rakha_users', JSON.stringify(users));
-            } else {
-                // تحديث معلومات Google إذا لم تكن موجودة
-                if (!user.googleId) {
-                    user.googleId = googleUser.googleId;
-                    user.picture = googleUser.picture;
-                    localStorage.setItem('rakha_users', JSON.stringify(users));
-                }
-            }
-            
-            // حفظ المستخدم الحالي
-            const userData = { ...user };
-            delete userData.password;
-            localStorage.setItem('rakha_current_user', JSON.stringify(userData));
-            
-            showMessage('تم تسجيل الدخول بنجاح! جاري التحويل...', 'success');
-            
-            setTimeout(() => {
-                window.location.href = 'home.html';
-            }, 1000);
-        }
-
-        // ===== عرض الرسائل =====
-        function showMessage(text, type) {
-            const msg = document.getElementById('authMessage');
-            msg.textContent = text;
-            msg.className = `auth-message ${type}`;
-            
-            setTimeout(() => {
-                msg.className = 'auth-message';
-            }, 4000);
-        }
-
-        // ===== تبديل التبويبات =====
-        const loginTab = document.getElementById('loginTab');
-        const registerTab = document.getElementById('registerTab');
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
-
-        loginTab.addEventListener('click', function() {
-            loginTab.classList.add('active');
-            registerTab.classList.remove('active');
-            loginForm.style.display = 'block';
-            registerForm.style.display = 'none';
+        // ---------- تبديل التبويبات ----------
+        document.getElementById('loginTab').addEventListener('click', function(){
+            this.classList.add('active');
+            document.getElementById('registerTab').classList.remove('active');
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+        });
+        document.getElementById('registerTab').addEventListener('click', function(){
+            this.classList.add('active');
+            document.getElementById('loginTab').classList.remove('active');
+            document.getElementById('registerForm').style.display = 'block';
+            document.getElementById('loginForm').style.display = 'none';
         });
 
-        registerTab.addEventListener('click', function() {
-            registerTab.classList.add('active');
-            loginTab.classList.remove('active');
-            registerForm.style.display = 'block';
-            loginForm.style.display = 'none';
-        });
+        function showMessage(msg, type) {
+            const el = document.getElementById('authMessage');
+            el.textContent = msg;
+            el.className = `auth-message ${type}`;
+            setTimeout(() => el.className = 'auth-message', 4000);
+        }
 
-        // ===== تسجيل الدخول التقليدي =====
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        // ---------- تسجيل الدخول ----------
+        document.getElementById('loginForm').addEventListener('submit', function(e){
             e.preventDefault();
-            
             const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            const rememberMe = document.getElementById('rememberMe').checked;
-            
-            if (!email || !password) {
-                showMessage('يرجى إدخال البريد الإلكتروني وكلمة المرور', 'error');
-                return;
-            }
-            
+            const pass = document.getElementById('loginPassword').value;
             const users = JSON.parse(localStorage.getItem('rakha_users') || '[]');
-            const user = users.find(u => u.email === email && u.password === password);
+            const user = users.find(u => u.email === email && u.password === pass);
             
-            if (user) {
-                const userData = { ...user };
-                delete userData.password;
-                localStorage.setItem('rakha_current_user', JSON.stringify(userData));
-                
-                if (rememberMe) {
-                    localStorage.setItem('rakha_remember', email);
-                } else {
-                    localStorage.removeItem('rakha_remember');
-                }
-                
-                showMessage('تم تسجيل الدخول بنجاح! جاري التحويل...', 'success');
-                
-                setTimeout(() => {
-                    window.location.href = 'home.html';
-                }, 1000);
-            } else {
-                showMessage('البريد الإلكتروني أو كلمة المرور غير صحيحة', 'error');
-            }
+            if (!user) return showMessage('بيانات الدخول غير صحيحة', 'error');
+            if (user.status !== 'active') return showMessage('الحساب غير مفعل، يرجى التواصل مع الإدارة', 'error');
+            
+            const sessionUser = { ...user };
+            delete sessionUser.password;
+            localStorage.setItem('rakha_current_user', JSON.stringify(sessionUser));
+            showMessage('تم الدخول بنجاح...', 'success');
+            setTimeout(() => window.location.href = 'home.html', 800);
         });
 
-        // ===== إنشاء حساب جديد =====
-        document.getElementById('registerForm').addEventListener('submit', function(e) {
+        // ---------- طلب حساب جديد ----------
+        document.getElementById('registerForm').addEventListener('submit', function(e){
             e.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const pass = document.getElementById('regPassword').value;
+            const confirm = document.getElementById('regConfirm').value;
             
-            const name = document.getElementById('registerName').value.trim();
-            const email = document.getElementById('registerEmail').value.trim();
-            const password = document.getElementById('registerPassword').value;
-            const confirm = document.getElementById('registerConfirm').value;
-            
-            // التحقق من صحة البيانات
-            if (!name || !email || !password) {
-                showMessage('جميع الحقول مطلوبة', 'error');
-                return;
-            }
-            
-            if (password !== confirm) {
-                showMessage('كلمات المرور غير متطابقة', 'error');
-                return;
-            }
-            
-            if (password.length < 6) {
-                showMessage('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'error');
-                return;
-            }
-            
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                showMessage('يرجى إدخال بريد إلكتروني صحيح', 'error');
-                return;
-            }
+            if (pass !== confirm) return showMessage('كلمتا المرور غير متطابقتين', 'error');
+            if (pass.length < 6) return showMessage('كلمة المرور 6 أحرف على الأقل', 'error');
             
             const users = JSON.parse(localStorage.getItem('rakha_users') || '[]');
+            if (users.find(u => u.email === email)) return showMessage('البريد الإلكتروني مسجل مسبقاً', 'error');
             
-            if (users.find(u => u.email === email)) {
-                showMessage('البريد الإلكتروني مسجل مسبقاً', 'error');
-                return;
-            }
-            
-            // إنشاء المستخدم الجديد
             const newUser = {
                 id: Date.now(),
-                name: name,
-                email: email,
-                password: password,
+                name, email, password: pass,
                 role: 'user',
+                status: 'pending',   // يحتاج تفعيل من المدير
                 createdAt: new Date().toISOString()
             };
-            
             users.push(newUser);
             localStorage.setItem('rakha_users', JSON.stringify(users));
-            
-            showMessage('تم إنشاء الحساب بنجاح! يمكنك تسجيل الدخول الآن', 'success');
-            
-            // التحويل إلى تبويب تسجيل الدخول
-            setTimeout(() => {
-                loginTab.click();
-                document.getElementById('loginEmail').value = email;
-            }, 1500);
+            showMessage('تم تقديم الطلب، بانتظار موافقة الإدارة', 'success');
+            document.getElementById('registerForm').reset();
+            setTimeout(() => document.getElementById('loginTab').click(), 1500);
         });
-
-        // ===== تعبئة البريد الإلكتروني المحفوظ =====
-        const remembered = localStorage.getItem('rakha_remember');
-        if (remembered) {
-            document.getElementById('loginEmail').value = remembered;
-            document.getElementById('rememberMe').checked = true;
-        }
-
-        // ===== تهيئة Google Sign-In عند تحميل الصفحة =====
-        window.addEventListener('load', function() {
-            setTimeout(initializeGoogleSignIn, 500);
-        });
-
-        // محاولة تهيئة Google Sign-In إذا تم تحميل المكتبة متأخراً
-        if (document.readyState === 'complete') {
-            setTimeout(initializeGoogleSignIn, 500);
-        }
     </script>
 </body>
 </html>
