@@ -3560,3 +3560,188 @@ textarea:focus {
     color: var(--navy);
     font-size: 1.2rem;
 }
+/* ===== تنسيقات صفحة الملفات المحسنة ===== */
+
+.search-section {
+    margin-bottom: 1.5rem;
+}
+
+.search-box {
+    position: relative;
+    max-width: 400px;
+}
+
+.search-box i {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray);
+}
+
+.search-box input {
+    width: 100%;
+    padding: 0.875rem 2.75rem 0.875rem 1rem;
+    border: 2px solid var(--gray-light);
+    border-radius: var(--border-radius-sm);
+    font-family: 'Cairo', sans-serif;
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.tab-count {
+    background: var(--gray-light);
+    color: var(--navy);
+    padding: 0.15rem 0.5rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    margin-right: 0.5rem;
+}
+
+.tab-btn.active .tab-count {
+    background: var(--gold);
+    color: var(--navy-dark);
+}
+
+.file-badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.file-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.file-badge.public {
+    background: var(--success);
+    color: var(--white);
+}
+
+.file-badge.private {
+    background: var(--warning);
+    color: var(--navy-dark);
+}
+
+.file-badge.owner {
+    background: var(--info);
+    color: var(--white);
+}
+
+.file-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--navy);
+    margin: 0.75rem 0 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.file-stats {
+    display: flex;
+    gap: 1rem;
+    margin: 0.75rem 0;
+    padding: 0.5rem 0;
+    border-top: 1px solid var(--gray-light);
+    border-bottom: 1px solid var(--gray-light);
+    font-size: 0.85rem;
+    color: var(--gray);
+}
+
+.file-stats span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.file-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.required {
+    color: var(--danger);
+}
+
+small {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--gray);
+    font-size: 0.8rem;
+}
+
+.upload-progress {
+    margin: 1rem 0;
+}
+
+.progress-bar {
+    height: 8px;
+    background: var(--gray-light);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    transition: width 0.3s;
+    width: 0%;
+}
+
+#progressText {
+    font-size: 0.9rem;
+    color: var(--gray);
+}
+
+.modal-large {
+    max-width: 900px;
+    width: 95%;
+}
+
+/* تحسينات للبطاقات */
+.file-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.file-card .file-actions {
+    margin-top: auto;
+}
+
+/* حالة الملفات الفارغة */
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--white);
+    border-radius: var(--border-radius);
+    border: 2px dashed var(--gray-light);
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: var(--gold);
+    margin-bottom: 1rem;
+    opacity: 0.7;
+}
+
+.empty-state p {
+    color: var(--gray);
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+}
