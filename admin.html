@@ -445,6 +445,69 @@
             localStorage.removeItem('rakha_current_user');
             window.location.href = 'index.html';
         }
+        function loadFilesTable() {
+    const tbody = document.getElementById('adminFilesTable');
+    
+    if (allFiles.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center">لا توجد ملفات</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = allFiles.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate)).map((file, i) => `
+        <tr>
+            <td>${i + 1}</td>
+            <td>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas ${getFileIcon(file.type)}"></i>
+                    <span>${file.name}</span>
+                </div>
+            </td>
+            <td>${file.uploader}</td>
+            <td>
+                <span class="badge ${file.isPublic ? 'public' : 'private'}">
+                    ${file.isPublic ? 'عام' : 'خاص'}
+                </span>
+            </td>
+            <td>${formatFileSize(file.size)}</td>
+            <td>${file.downloads || 0}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn-icon" onclick="toggleFilePublic(${file.id})" title="${file.isPublic ? 'جعله خاص' : 'جعله عام'}">
+                        <i class="fas ${file.isPublic ? 'fa-lock' : 'fa-globe'}"></i>
+                    </button>
+                    <button class="btn-icon danger" onclick="deleteFile(${file.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function toggleFilePublic(fileId) {
+    const file = allFiles.find(f => f.id === fileId);
+    if (!file) return;
+    
+    file.isPublic = !file.isPublic;
+    localStorage.setItem('rakha_files', JSON.stringify(allFiles));
+    loadFilesTable();
+}
+
+function getFileIcon(type) {
+    if (!type) return 'fa-file';
+    if (type.includes('pdf')) return 'fa-file-pdf';
+    if (type.includes('excel')) return 'fa-file-excel';
+    if (type.includes('word')) return 'fa-file-word';
+    if (type.includes('image')) return 'fa-file-image';
+    return 'fa-file';
+}
+
+function formatFileSize(bytes) {
+    if (!bytes) return '0 B';
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
     </script>
 </body>
 </html>
