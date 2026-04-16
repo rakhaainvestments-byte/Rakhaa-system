@@ -1,1 +1,1176 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الملفات - رخاء للتنمية المستدامة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- شريط التنقل -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-leaf"></i>
+                <span>رخاء</span>
+                <span class="logo-sub">للتنمية المستدامة</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html"><i class="fas fa-home"></i> الرئيسية</a></li>
+                <li><a href="files.html" class="active"><i class="fas fa-folder-open"></i> الملفات</a></li>
+                <li><a href="admin.html" id="adminLink" style="display: none;"><i class="fas fa-cog"></i> لوحة التحكم</a></li>
+            </ul>
+            <div class="nav-actions">
+                <div class="user-profile" id="userProfile" style="display: none;">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-dropdown">
+                        <div class="user-info" id="userInfo"></div>
+                        <div class="dropdown-menu">
+                            <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a>
+                        </div>
+                    </div>
+                </div>
+                <a href="login.html" class="btn-login" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
+                </a>
+            </div>
+        </div>
+    </nav>
 
+    <!-- المحتوى الرئيسي -->
+    <main class="files-page-container">
+        <!-- رأس الصفحة -->
+        <div class="files-page-header">
+            <div class="header-content">
+                <h1><i class="fas fa-cloud"></i> إدارة الملفات</h1>
+                <p>رفع وإدارة الملفات الخاصة بالتنمية المستدامة</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn-primary btn-large" onclick="openUploadModal()" id="uploadBtn">
+                    <i class="fas fa-cloud-upload-alt"></i> رفع ملف جديد
+                </button>
+            </div>
+        </div>
+
+        <!-- شريط البحث والفلترة -->
+        <div class="files-toolbar">
+            <div class="search-section">
+                <div class="search-box large">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="globalFileSearch" placeholder="بحث في الملفات..." onkeyup="searchFiles()">
+                </div>
+            </div>
+            <div class="filter-section">
+                <select id="categoryFilter" class="filter-select" onchange="filterFiles()">
+                    <option value="all">جميع التصنيفات</option>
+                    <option value="general">عام</option>
+                    <option value="financial">مالي</option>
+                    <option value="legal">قانوني</option>
+                    <option value="technical">تقني</option>
+                    <option value="report">تقارير</option>
+                </select>
+                <select id="typeFilter" class="filter-select" onchange="filterFiles()">
+                    <option value="all">جميع الأنواع</option>
+                    <option value="pdf">PDF</option>
+                    <option value="excel">Excel</option>
+                    <option value="word">Word</option>
+                    <option value="image">صور</option>
+                </select>
+                <select id="sortFilter" class="filter-select" onchange="filterFiles()">
+                    <option value="date-desc">الأحدث أولاً</option>
+                    <option value="date-asc">الأقدم أولاً</option>
+                    <option value="name-asc">الاسم (أ-ي)</option>
+                    <option value="name-desc">الاسم (ي-أ)</option>
+                    <option value="size-desc">الحجم (الأكبر)</option>
+                    <option value="size-asc">الحجم (الأصغر)</option>
+                    <option value="downloads-desc">الأكثر تنزيلاً</option>
+                </select>
+                <div class="view-toggle">
+                    <button class="view-btn active" onclick="setViewMode('grid')">
+                        <i class="fas fa-th"></i>
+                    </button>
+                    <button class="view-btn" onclick="setViewMode('list')">
+                        <i class="fas fa-list"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- علامات التبويب -->
+        <div class="files-tabs">
+            <button class="file-tab active" onclick="switchFileTab('all')">
+                <i class="fas fa-globe"></i> جميع الملفات
+                <span class="tab-count" id="allCount">0</span>
+            </button>
+            <button class="file-tab" onclick="switchFileTab('public')">
+                <i class="fas fa-lock-open"></i> الملفات العامة
+                <span class="tab-count" id="publicCount">0</span>
+            </button>
+            <button class="file-tab" onclick="switchFileTab('private')">
+                <i class="fas fa-lock"></i> ملفاتي الخاصة
+                <span class="tab-count" id="privateCount">0</span>
+            </button>
+            <button class="file-tab" onclick="switchFileTab('shared')">
+                <i class="fas fa-share-alt"></i> مشاركة معي
+                <span class="tab-count" id="sharedCount">0</span>
+            </button>
+        </div>
+
+        <!-- إحصائيات سريعة -->
+        <div class="files-stats">
+            <div class="file-stat-item">
+                <i class="fas fa-folder"></i>
+                <span>إجمالي الملفات: <strong id="totalFilesCount">0</strong></span>
+            </div>
+            <div class="file-stat-item">
+                <i class="fas fa-database"></i>
+                <span>المساحة المستخدمة: <strong id="totalStorage">0 MB</strong></span>
+            </div>
+            <div class="file-stat-item">
+                <i class="fas fa-download"></i>
+                <span>إجمالي التنزيلات: <strong id="totalDownloads">0</strong></span>
+            </div>
+        </div>
+
+        <!-- عرض الملفات - نمط الشبكة -->
+        <div id="filesGridView" class="files-grid-view">
+            <div class="files-grid" id="filesGrid"></div>
+        </div>
+
+        <!-- عرض الملفات - نمط القائمة -->
+        <div id="filesListView" class="files-list-view" style="display: none;">
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>الملف</th>
+                            <th>النوع</th>
+                            <th>الحجم</th>
+                            <th>الرافع</th>
+                            <th>تاريخ الرفع</th>
+                            <th>التنزيلات</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="filesTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- لا توجد ملفات -->
+        <div id="noFilesMessage" class="no-files-message" style="display: none;">
+            <i class="fas fa-folder-open"></i>
+            <h3>لا توجد ملفات</h3>
+            <p>لم يتم العثور على أي ملفات تطابق معايير البحث</p>
+        </div>
+
+        <!-- ترقيم الصفحات -->
+        <div class="pagination" id="filesPagination"></div>
+    </main>
+
+    <!-- مودال رفع ملف -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="close" onclick="closeUploadModal()">&times;</span>
+            <h2><i class="fas fa-cloud-upload-alt"></i> رفع ملف جديد</h2>
+            
+            <div class="upload-modal-content">
+                <!-- منطقة السحب والإفلات -->
+                <div class="upload-dropzone" id="uploadDropzone">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3>اسحب الملف هنا أو اضغط للاختيار</h3>
+                    <p>الحد الأقصى للحجم: 10 MB</p>
+                    <p>الأنواع المدعومة: PDF, Word, Excel, صور</p>
+                    <input type="file" id="fileInput" style="display: none;" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+                </div>
+
+                <!-- معلومات الملف المحدد -->
+                <div id="selectedFileInfo" class="selected-file-info" style="display: none;">
+                    <i class="fas fa-file"></i>
+                    <div>
+                        <strong id="selectedFileName"></strong>
+                        <span id="selectedFileSize"></span>
+                    </div>
+                    <button onclick="clearSelectedFile()" class="btn-icon">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- نموذج معلومات الملف -->
+                <form id="uploadForm" onsubmit="uploadFile(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>اسم الملف <span class="required">*</span></label>
+                            <input type="text" id="fileName" required placeholder="أدخل اسم الملف">
+                        </div>
+                        <div class="form-group">
+                            <label>التصنيف</label>
+                            <select id="fileCategory">
+                                <option value="general">عام</option>
+                                <option value="financial">مالي</option>
+                                <option value="legal">قانوني</option>
+                                <option value="technical">تقني</option>
+                                <option value="report">تقرير</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>وصف الملف</label>
+                        <textarea id="fileDescription" rows="3" placeholder="أدخل وصفاً للملف..."></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="fileIsPublic"> ملف عام (يمكن للجميع رؤيته)
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="allowDownload"> السماح بالتنزيل
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>العلامات (Tags)</label>
+                        <input type="text" id="fileTags" placeholder="أدخل علامات مفصولة بفواصل">
+                    </div>
+
+                    <div class="upload-progress" id="uploadProgress" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <span id="progressText">0%</span>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" onclick="closeUploadModal()">إلغاء</button>
+                        <button type="submit" class="btn-primary" id="uploadSubmitBtn">
+                            <i class="fas fa-upload"></i> رفع الملف
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال معاينة الملف -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content modal-xlarge">
+            <span class="close" onclick="closePreviewModal()">&times;</span>
+            <div class="preview-header">
+                <h2 id="previewTitle">معاينة الملف</h2>
+                <div class="preview-actions">
+                    <button class="btn-secondary" onclick="downloadCurrentFile()">
+                        <i class="fas fa-download"></i> تنزيل
+                    </button>
+                    <button class="btn-secondary" onclick="shareFile()">
+                        <i class="fas fa-share-alt"></i> مشاركة
+                    </button>
+                    <button class="btn-secondary" onclick="printFile()">
+                        <i class="fas fa-print"></i> طباعة
+                    </button>
+                </div>
+            </div>
+            <div class="preview-content" id="previewContent"></div>
+        </div>
+    </div>
+
+    <!-- مودال مشاركة الملف -->
+    <div id="shareModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeShareModal()">&times;</span>
+            <h2><i class="fas fa-share-alt"></i> مشاركة الملف</h2>
+            <div class="share-section">
+                <h4>رابط المشاركة</h4>
+                <div class="share-link-box">
+                    <input type="text" id="shareLink" readonly>
+                    <button onclick="copyShareLink()" class="btn-secondary">
+                        <i class="fas fa-copy"></i> نسخ
+                    </button>
+                </div>
+            </div>
+            <div class="share-section">
+                <h4>مشاركة مع مستخدمين</h4>
+                <div class="form-group">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" id="shareEmail" placeholder="user@example.com">
+                </div>
+                <div class="form-group">
+                    <label>الصلاحية</label>
+                    <select id="sharePermission">
+                        <option value="view">عرض فقط</option>
+                        <option value="download">عرض وتنزيل</option>
+                        <option value="edit">تحرير</option>
+                    </select>
+                </div>
+                <button onclick="addShareUser()" class="btn-primary">
+                    <i class="fas fa-plus"></i> إضافة
+                </button>
+            </div>
+            <div class="share-section">
+                <h4>المستخدمين المشاركين</h4>
+                <div id="sharedUsersList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال تفاصيل الملف -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeDetailsModal()">&times;</span>
+            <h2>تفاصيل الملف</h2>
+            <div id="fileDetailsContent"></div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="files-manager.js"></script>
+    <script>
+        // متغيرات عامة لصفحة الملفات
+        let currentViewMode = 'grid';
+        let currentFileTab = 'all';
+        let allFiles = [];
+        let filteredFiles = [];
+        let selectedFile = null;
+        let currentPage = 1;
+        const itemsPerPage = 12;
+
+        // تهيئة الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeFilesPage();
+            setupEventListeners();
+        });
+
+        function initializeFilesPage() {
+            checkAuthState();
+            loadAllFiles();
+            updateFileStats();
+            setupUploadDropzone();
+        }
+
+        function setupEventListeners() {
+            // البحث المباشر
+            const searchInput = document.getElementById('globalFileSearch');
+            if (searchInput) {
+                searchInput.addEventListener('input', debounce(searchFiles, 300));
+            }
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        function loadAllFiles() {
+            const storedFiles = JSON.parse(localStorage.getItem('rakha_files') || '[]');
+            allFiles = storedFiles.map(file => ({
+                ...file,
+                category: file.category || 'general',
+                tags: file.tags || [],
+                shares: file.shares || []
+            }));
+            
+            updateTabCounts();
+            applyFilters();
+        }
+
+        function updateTabCounts() {
+            const currentUser = getCurrentUser();
+            
+            document.getElementById('allCount').textContent = allFiles.length;
+            
+            const publicFiles = allFiles.filter(f => f.isPublic);
+            document.getElementById('publicCount').textContent = publicFiles.length;
+            
+            if (currentUser) {
+                const privateFiles = allFiles.filter(f => !f.isPublic && f.uploaderId === currentUser.id);
+                document.getElementById('privateCount').textContent = privateFiles.length;
+                
+                const sharedFiles = allFiles.filter(f => 
+                    f.shares && f.shares.some(s => s.email === currentUser.email)
+                );
+                document.getElementById('sharedCount').textContent = sharedFiles.length;
+            }
+        }
+
+        function applyFilters() {
+            const currentUser = getCurrentUser();
+            
+            // فلترة حسب التبويب
+            let files = allFiles;
+            switch(currentFileTab) {
+                case 'public':
+                    files = files.filter(f => f.isPublic);
+                    break;
+                case 'private':
+                    if (currentUser) {
+                        files = files.filter(f => !f.isPublic && f.uploaderId === currentUser.id);
+                    } else {
+                        files = [];
+                    }
+                    break;
+                case 'shared':
+                    if (currentUser) {
+                        files = files.filter(f => 
+                            f.shares && f.shares.some(s => s.email === currentUser.email)
+                        );
+                    } else {
+                        files = [];
+                    }
+                    break;
+            }
+            
+            // فلترة حسب التصنيف
+            const category = document.getElementById('categoryFilter')?.value;
+            if (category && category !== 'all') {
+                files = files.filter(f => f.category === category);
+            }
+            
+            // فلترة حسب النوع
+            const type = document.getElementById('typeFilter')?.value;
+            if (type && type !== 'all') {
+                files = files.filter(f => {
+                    if (type === 'pdf') return f.type.includes('pdf');
+                    if (type === 'excel') return f.type.includes('excel') || f.type.includes('spreadsheet');
+                    if (type === 'word') return f.type.includes('word') || f.type.includes('document');
+                    if (type === 'image') return f.type.includes('image');
+                    return true;
+                });
+            }
+            
+            // فلترة حسب البحث
+            const searchTerm = document.getElementById('globalFileSearch')?.value.toLowerCase();
+            if (searchTerm) {
+                files = files.filter(f => 
+                    f.name.toLowerCase().includes(searchTerm) ||
+                    f.description?.toLowerCase().includes(searchTerm) ||
+                    f.uploader?.toLowerCase().includes(searchTerm) ||
+                    f.tags?.some(tag => tag.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            // الترتيب
+            const sort = document.getElementById('sortFilter')?.value || 'date-desc';
+            files = sortFiles(files, sort);
+            
+            filteredFiles = files;
+            displayFiles();
+        }
+
+        function sortFiles(files, sortType) {
+            return [...files].sort((a, b) => {
+                switch(sortType) {
+                    case 'date-desc':
+                        return new Date(b.uploadDate) - new Date(a.uploadDate);
+                    case 'date-asc':
+                        return new Date(a.uploadDate) - new Date(b.uploadDate);
+                    case 'name-asc':
+                        return a.name.localeCompare(b.name, 'ar');
+                    case 'name-desc':
+                        return b.name.localeCompare(a.name, 'ar');
+                    case 'size-desc':
+                        return (b.size || 0) - (a.size || 0);
+                    case 'size-asc':
+                        return (a.size || 0) - (b.size || 0);
+                    case 'downloads-desc':
+                        return (b.downloads || 0) - (a.downloads || 0);
+                    default:
+                        return 0;
+                }
+            });
+        }
+
+        function displayFiles() {
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageFiles = filteredFiles.slice(startIndex, endIndex);
+            
+            if (filteredFiles.length === 0) {
+                document.getElementById('filesGridView').style.display = 'none';
+                document.getElementById('filesListView').style.display = 'none';
+                document.getElementById('noFilesMessage').style.display = 'block';
+                return;
+            }
+            
+            document.getElementById('noFilesMessage').style.display = 'none';
+            
+            if (currentViewMode === 'grid') {
+                displayGridView(pageFiles);
+                document.getElementById('filesGridView').style.display = 'block';
+                document.getElementById('filesListView').style.display = 'none';
+            } else {
+                displayListView(pageFiles);
+                document.getElementById('filesGridView').style.display = 'none';
+                document.getElementById('filesListView').style.display = 'block';
+            }
+            
+            updatePagination();
+        }
+
+        function displayGridView(files) {
+            const grid = document.getElementById('filesGrid');
+            grid.innerHTML = files.map(file => createFileCard(file)).join('');
+        }
+
+        function displayListView(files) {
+            const tbody = document.getElementById('filesTableBody');
+            tbody.innerHTML = files.map(file => createFileRow(file)).join('');
+        }
+
+        function createFileCard(file) {
+            const icon = getFileIcon(file.type);
+            const isOwner = getCurrentUser()?.id === file.uploaderId;
+            
+            return `
+                <div class="file-card">
+                    <div class="file-card-header">
+                        <i class="fas ${icon} file-type-icon"></i>
+                        <div class="file-actions-dropdown">
+                            <button class="btn-icon" onclick="toggleFileMenu(event, ${file.id})">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <div class="dropdown-menu" id="fileMenu-${file.id}">
+                                <a href="#" onclick="previewFile(${file.id})">
+                                    <i class="fas fa-eye"></i> معاينة
+                                </a>
+                                <a href="#" onclick="downloadFile(${file.id})">
+                                    <i class="fas fa-download"></i> تنزيل
+                                </a>
+                                <a href="#" onclick="showFileDetails(${file.id})">
+                                    <i class="fas fa-info-circle"></i> تفاصيل
+                                </a>
+                                <a href="#" onclick="shareFile(${file.id})">
+                                    <i class="fas fa-share-alt"></i> مشاركة
+                                </a>
+                                ${isOwner ? `
+                                    <a href="#" onclick="editFile(${file.id})" class="text-warning">
+                                        <i class="fas fa-edit"></i> تعديل
+                                    </a>
+                                    <a href="#" onclick="deleteFile(${file.id})" class="text-danger">
+                                        <i class="fas fa-trash"></i> حذف
+                                    </a>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="file-card-body">
+                        <h4 class="file-name" title="${file.name}">${file.name}</h4>
+                        <p class="file-description">${file.description || 'لا يوجد وصف'}</p>
+                    </div>
+                    <div class="file-card-footer">
+                        <div class="file-meta">
+                            <span><i class="fas fa-user"></i> ${file.uploader}</span>
+                            <span><i class="fas fa-calendar"></i> ${formatDate(file.uploadDate)}</span>
+                        </div>
+                        <div class="file-badges">
+                            <span class="badge ${file.isPublic ? 'public' : 'private'}">
+                                ${file.isPublic ? 'عام' : 'خاص'}
+                            </span>
+                            <span class="badge category">${getCategoryName(file.category)}</span>
+                        </div>
+                        <div class="file-stats">
+                            <span><i class="fas fa-eye"></i> ${file.views || 0}</span>
+                            <span><i class="fas fa-download"></i> ${file.downloads || 0}</span>
+                            <span><i class="fas fa-hdd"></i> ${formatFileSize(file.size)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createFileRow(file) {
+            const icon = getFileIcon(file.type);
+            const isOwner = getCurrentUser()?.id === file.uploaderId;
+            
+            return `
+                <tr>
+                    <td>
+                        <div class="file-info-cell">
+                            <i class="fas ${icon}"></i>
+                            <div>
+                                <strong>${file.name}</strong>
+                                <small>${file.description || ''}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge">${getFileTypeName(file.type)}</span>
+                    </td>
+                    <td>${formatFileSize(file.size)}</td>
+                    <td>${file.uploader}</td>
+                    <td>${formatDate(file.uploadDate)}</td>
+                    <td>${file.downloads || 0}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon" onclick="previewFile(${file.id})" title="معاينة">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn-icon" onclick="downloadFile(${file.id})" title="تنزيل">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="btn-icon" onclick="shareFile(${file.id})" title="مشاركة">
+                                <i class="fas fa-share-alt"></i>
+                            </button>
+                            ${isOwner ? `
+                                <button class="btn-icon text-danger" onclick="deleteFile(${file.id})" title="حذف">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredFiles.length / itemsPerPage);
+            const pagination = document.getElementById('filesPagination');
+            
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+            
+            let html = '';
+            
+            // زر السابق
+            html += `<button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+                <i class="fas fa-chevron-right"></i>
+            </button>`;
+            
+            // الصفحات
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    html += `<button class="${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    html += '<span>...</span>';
+                }
+            }
+            
+            // زر التالي
+            html += `<button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+                <i class="fas fa-chevron-left"></i>
+            </button>`;
+            
+            pagination.innerHTML = html;
+        }
+
+        function updateFileStats() {
+            const totalSize = allFiles.reduce((sum, f) => sum + (f.size || 0), 0);
+            const totalDownloads = allFiles.reduce((sum, f) => sum + (f.downloads || 0), 0);
+            
+            document.getElementById('totalFilesCount').textContent = allFiles.length;
+            document.getElementById('totalStorage').textContent = formatFileSize(totalSize);
+            document.getElementById('totalDownloads').textContent = totalDownloads;
+        }
+
+        // دوال مساعدة
+        function getFileIcon(fileType) {
+            if (fileType.includes('pdf')) return 'fa-file-pdf';
+            if (fileType.includes('excel') || fileType.includes('spreadsheet')) return 'fa-file-excel';
+            if (fileType.includes('word') || fileType.includes('document')) return 'fa-file-word';
+            if (fileType.includes('image')) return 'fa-file-image';
+            if (fileType.includes('text')) return 'fa-file-alt';
+            return 'fa-file';
+        }
+
+        function getFileTypeName(fileType) {
+            if (fileType.includes('pdf')) return 'PDF';
+            if (fileType.includes('excel') || fileType.includes('spreadsheet')) return 'Excel';
+            if (fileType.includes('word') || fileType.includes('document')) return 'Word';
+            if (fileType.includes('image')) return 'صورة';
+            return 'ملف';
+        }
+
+        function getCategoryName(category) {
+            const categories = {
+                'general': 'عام',
+                'financial': 'مالي',
+                'legal': 'قانوني',
+                'technical': 'تقني',
+                'report': 'تقرير'
+            };
+            return categories[category] || 'عام';
+        }
+
+        function formatFileSize(bytes) {
+            if (!bytes) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ar-SA', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        // دوال التحكم بالصفحة
+        function switchFileTab(tab) {
+            currentFileTab = tab;
+            currentPage = 1;
+            
+            document.querySelectorAll('.file-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`[onclick="switchFileTab('${tab}')"]`).classList.add('active');
+            
+            applyFilters();
+        }
+
+        function setViewMode(mode) {
+            currentViewMode = mode;
+            
+            document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`[onclick="setViewMode('${mode}')"]`).classList.add('active');
+            
+            displayFiles();
+        }
+
+        function searchFiles() {
+            currentPage = 1;
+            applyFilters();
+        }
+
+        function filterFiles() {
+            currentPage = 1;
+            applyFilters();
+        }
+
+        function changePage(page) {
+            const totalPages = Math.ceil(filteredFiles.length / itemsPerPage);
+            if (page < 1 || page > totalPages) return;
+            
+            currentPage = page;
+            displayFiles();
+        }
+
+        // دوال المودالات
+        function openUploadModal() {
+            const currentUser = getCurrentUser();
+            if (!currentUser) {
+                showAlert('يجب تسجيل الدخول لرفع الملفات', 'warning');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            document.getElementById('uploadModal').style.display = 'flex';
+        }
+
+        function closeUploadModal() {
+            document.getElementById('uploadModal').style.display = 'none';
+            clearSelectedFile();
+        }
+
+        function previewFile(fileId) {
+            const file = allFiles.find(f => f.id === fileId);
+            if (!file) return;
+            
+            selectedFile = file;
+            
+            // زيادة عدد المشاهدات
+            file.views = (file.views || 0) + 1;
+            localStorage.setItem('rakha_files', JSON.stringify(allFiles));
+            
+            const modal = document.getElementById('previewModal');
+            const title = document.getElementById('previewTitle');
+            const content = document.getElementById('previewContent');
+            
+            title.textContent = file.name;
+            
+            // عرض المحتوى حسب نوع الملف
+            if (file.type.includes('image')) {
+                content.innerHTML = `<img src="data:${file.type};base64,${file.data}" alt="${file.name}" style="max-width: 100%;">`;
+            } else if (file.type.includes('pdf')) {
+                content.innerHTML = `<iframe src="data:application/pdf;base64,${file.data}" width="100%" height="600px"></iframe>`;
+            } else {
+                content.innerHTML = `
+                    <div class="file-preview-placeholder">
+                        <i class="fas ${getFileIcon(file.type)}" style="font-size: 4rem;"></i>
+                        <p>لا يمكن معاينة هذا النوع من الملفات</p>
+                        <button class="btn-primary" onclick="downloadFile(${file.id})">
+                            <i class="fas fa-download"></i> تنزيل الملف
+                        </button>
+                    </div>
+                `;
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        function closePreviewModal() {
+            document.getElementById('previewModal').style.display = 'none';
+        }
+
+        function showFileDetails(fileId) {
+            const file = allFiles.find(f => f.id === fileId);
+            if (!file) return;
+            
+            const modal = document.getElementById('detailsModal');
+            const content = document.getElementById('fileDetailsContent');
+            
+            content.innerHTML = `
+                <div class="file-details">
+                    <div class="detail-row">
+                        <strong>اسم الملف:</strong>
+                        <span>${file.name}</span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>الوصف:</strong>
+                        <span>${file.description || 'لا يوجد'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>النوع:</strong>
+                        <span>${getFileTypeName(file.type)}</span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>الحجم:</strong>
+                        <span>${formatFileSize(file.size)}</span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>الرافع:</strong>
+                        <span>${file.uploader}</span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>تاريخ الرفع:</strong>
+                        <span>${formatDate(file.uploadDate)}</span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>الرؤية:</strong>
+                        <span>${file.isPublic ? 'عام' : 'خاص'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>التصنيف:</strong>
+                        <span>${getCategoryName(file.category)}</span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>المشاهدات:</strong>
+                        <span>${file.views || 0}</span>
+                    </div>
+                    <div class="detail-row">
+                        <strong>التنزيلات:</strong>
+                        <span>${file.downloads || 0}</span>
+                    </div>
+                    ${file.tags && file.tags.length > 0 ? `
+                        <div class="detail-row">
+                            <strong>العلامات:</strong>
+                            <div class="tags-list">
+                                ${file.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function closeDetailsModal() {
+            document.getElementById('detailsModal').style.display = 'none';
+        }
+
+        function shareFile(fileId) {
+            const file = allFiles.find(f => f.id === fileId);
+            if (!file) return;
+            
+            selectedFile = file;
+            
+            // إنشاء رابط المشاركة
+            const shareLink = `${window.location.origin}/files.html?file=${fileId}`;
+            document.getElementById('shareLink').value = shareLink;
+            
+            // عرض المستخدمين المشاركين
+            updateSharedUsersList();
+            
+            document.getElementById('shareModal').style.display = 'flex';
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').style.display = 'none';
+        }
+
+        function copyShareLink() {
+            const input = document.getElementById('shareLink');
+            input.select();
+            document.execCommand('copy');
+            showAlert('تم نسخ الرابط', 'success');
+        }
+
+        function addShareUser() {
+            const email = document.getElementById('shareEmail').value;
+            const permission = document.getElementById('sharePermission').value;
+            
+            if (!email) {
+                showAlert('يرجى إدخال البريد الإلكتروني', 'warning');
+                return;
+            }
+            
+            if (!selectedFile.shares) {
+                selectedFile.shares = [];
+            }
+            
+            // التحقق من عدم وجود المشاركة مسبقاً
+            if (selectedFile.shares.find(s => s.email === email)) {
+                showAlert('هذا المستخدم مشارك بالفعل', 'warning');
+                return;
+            }
+            
+            selectedFile.shares.push({
+                email: email,
+                permission: permission,
+                date: new Date().toISOString()
+            });
+            
+            // تحديث الملف في التخزين
+            const fileIndex = allFiles.findIndex(f => f.id === selectedFile.id);
+            allFiles[fileIndex] = selectedFile;
+            localStorage.setItem('rakha_files', JSON.stringify(allFiles));
+            
+            updateSharedUsersList();
+            document.getElementById('shareEmail').value = '';
+            
+            showAlert('تمت إضافة المشاركة بنجاح', 'success');
+        }
+
+        function updateSharedUsersList() {
+            const container = document.getElementById('sharedUsersList');
+            
+            if (!selectedFile.shares || selectedFile.shares.length === 0) {
+                container.innerHTML = '<p class="text-muted">لا يوجد مستخدمين مشاركين</p>';
+                return;
+            }
+            
+            container.innerHTML = selectedFile.shares.map(share => `
+                <div class="shared-user-item">
+                    <div>
+                        <strong>${share.email}</strong>
+                        <span class="badge">${getPermissionName(share.permission)}</span>
+                    </div>
+                    <button class="btn-icon text-danger" onclick="removeShareUser('${share.email}')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function removeShareUser(email) {
+            selectedFile.shares = selectedFile.shares.filter(s => s.email !== email);
+            
+            const fileIndex = allFiles.findIndex(f => f.id === selectedFile.id);
+            allFiles[fileIndex] = selectedFile;
+            localStorage.setItem('rakha_files', JSON.stringify(allFiles));
+            
+            updateSharedUsersList();
+            showAlert('تم إزالة المشاركة', 'success');
+        }
+
+        function getPermissionName(permission) {
+            const permissions = {
+                'view': 'عرض',
+                'download': 'تنزيل',
+                'edit': 'تحرير'
+            };
+            return permissions[permission] || permission;
+        }
+
+        function downloadCurrentFile() {
+            if (selectedFile) {
+                downloadFile(selectedFile.id);
+            }
+        }
+
+        function printFile() {
+            window.print();
+        }
+
+        function toggleFileMenu(event, fileId) {
+            event.stopPropagation();
+            
+            // إغلاق جميع القوائم المفتوحة
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                if (menu.id !== `fileMenu-${fileId}`) {
+                    menu.style.display = 'none';
+                }
+            });
+            
+            const menu = document.getElementById(`fileMenu-${fileId}`);
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // إغلاق القوائم عند النقر خارجها
+        document.addEventListener('click', function() {
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                menu.style.display = 'none';
+            });
+        });
+
+        function setupUploadDropzone() {
+            const dropzone = document.getElementById('uploadDropzone');
+            const fileInput = document.getElementById('fileInput');
+            
+            dropzone.addEventListener('click', () => fileInput.click());
+            
+            dropzone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropzone.classList.add('dragover');
+            });
+            
+            dropzone.addEventListener('dragleave', () => {
+                dropzone.classList.remove('dragover');
+            });
+            
+            dropzone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('dragover');
+                
+                const file = e.dataTransfer.files[0];
+                if (file) {
+                    handleFileSelection(file);
+                }
+            });
+            
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    handleFileSelection(file);
+                }
+            });
+        }
+
+        function handleFileSelection(file) {
+            // التحقق من حجم الملف
+            const maxSize = 10 * 1024 * 1024; // 10 MB
+            if (file.size > maxSize) {
+                showAlert('حجم الملف كبير جداً. الحد الأقصى 10 MB', 'error');
+                return;
+            }
+            
+            selectedFileForUpload = file;
+            
+            // عرض معلومات الملف
+            document.getElementById('selectedFileName').textContent = file.name;
+            document.getElementById('selectedFileSize').textContent = formatFileSize(file.size);
+            document.getElementById('selectedFileInfo').style.display = 'flex';
+            
+            // تعبئة اسم الملف تلقائياً
+            const nameWithoutExt = file.name.replace(/\.[^/.]+$/, '');
+            document.getElementById('fileName').value = nameWithoutExt;
+        }
+
+        function clearSelectedFile() {
+            selectedFileForUpload = null;
+            document.getElementById('selectedFileInfo').style.display = 'none';
+            document.getElementById('fileInput').value = '';
+        }
+
+        function uploadFile(event) {
+            event.preventDefault();
+            
+            if (!selectedFileForUpload) {
+                showAlert('يرجى اختيار ملف', 'warning');
+                return;
+            }
+            
+            const currentUser = getCurrentUser();
+            const fileName = document.getElementById('fileName').value;
+            const description = document.getElementById('fileDescription').value;
+            const category = document.getElementById('fileCategory').value;
+            const isPublic = document.getElementById('fileIsPublic').checked;
+            const allowDownload = document.getElementById('allowDownload').checked;
+            const tags = document.getElementById('fileTags').value.split(',').map(t => t.trim()).filter(t => t);
+            
+            // عرض شريط التقدم
+            document.getElementById('uploadProgress').style.display = 'block';
+            document.getElementById('uploadSubmitBtn').disabled = true;
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(event) {
+                const fileData = {
+                    id: Date.now(),
+                    name: fileName,
+                    description: description,
+                    originalName: selectedFileForUpload.name,
+                    type: selectedFileForUpload.type,
+                    size: selectedFileForUpload.size,
+                    data: event.target.result.split(',')[1],
+                    uploader: currentUser.name,
+                    uploaderId: currentUser.id,
+                    uploadDate: new Date().toISOString(),
+                    isPublic: isPublic,
+                    allowDownload: allowDownload,
+                    category: category,
+                    tags: tags,
+                    downloads: 0,
+                    views: 0,
+                    shares: []
+                };
+                
+                // حفظ الملف
+                const files = JSON.parse(localStorage.getItem('rakha_files') || '[]');
+                files.push(fileData);
+                localStorage.setItem('rakha_files', JSON.stringify(files));
+                
+                // تحديث شريط التقدم
+                document.getElementById('progressFill').style.width = '100%';
+                document.getElementById('progressText').textContent = '100%';
+                
+                setTimeout(() => {
+                    closeUploadModal();
+                    loadAllFiles();
+                    showAlert('تم رفع الملف بنجاح!', 'success');
+                    
+                    // إعادة تعيين النموذج
+                    document.getElementById('uploadProgress').style.display = 'none';
+                    document.getElementById('progressFill').style.width = '0%';
+                    document.getElementById('progressText').textContent = '0%';
+                    document.getElementById('uploadSubmitBtn').disabled = false;
+                }, 500);
+            };
+            
+            reader.onprogress = function(event) {
+                if (event.lengthComputable) {
+                    const percent = Math.round((event.loaded / event.total) * 100);
+                    document.getElementById('progressFill').style.width = percent + '%';
+                    document.getElementById('progressText').textContent = percent + '%';
+                }
+            };
+            
+            reader.readAsDataURL(selectedFileForUpload);
+        }
+
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.style.animation = 'slideOut 0.3s';
+                setTimeout(() => alertDiv.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
