@@ -1,1 +1,45 @@
 
+{
+  "users": [
+    {
+      "id": "usr_admin",
+      "email": "admin@architectural-ledger.com",
+      "password": "Admin@123",
+      "name": "System Administrator",
+      "role": "admin",
+      "googleId": null,
+      "avatar": "https://ui-avatars.com/api/?name=System+Administrator&background=A67B5B&color=fff",
+      "createdAt": "2024-01-01T00:00:00Z",
+      "lastLogin": null,
+      "permissions": ["all"],
+      "department": "IT Administration"
+    },
+    {
+      "id": "usr_2",
+      "email": "sarah.anderson@architectural-ledger.com",
+      "password": "password123",
+      "name": "Sarah Anderson",
+      "role": "auditor",
+      "googleId": null,
+      "avatar": "https://ui-avatars.com/api/?name=Sarah+Anderson&background=8B7355&color=fff",
+      "permissions": ["view_filings", "edit_documents", "audit_trail"],
+      "department": "Audit & Compliance"
+    },
+    {
+      "id": "usr_3",
+      "email": "marcus.chen@architectural-ledger.com",
+      "password": "password123",
+      "name": "Marcus Chen",
+      "role": "tax_specialist",
+      "googleId": null,
+      "avatar": "https://ui-avatars.com/api/?name=Marcus+Chen&background=6B5E54&color=fff",
+      "permissions": ["view_filings", "edit_tax_returns", "file_management"],
+      "department": "Tax Services"
+    }
+  ],
+  "google_auth_config": {
+    "client_id": "876111425484-6hrf70a1d9kh2uvcrr56ih3f1koro67v.apps.googleusercontent.com",
+    "enabled": true,
+    "allowed_domains": ["gmail.com", "architectural-ledger.com"]
+  }
+}
