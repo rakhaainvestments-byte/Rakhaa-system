@@ -48,6 +48,14 @@
                 <button type="submit" class="btn-gold btn-block">
                     <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
                 </button>
+
+                <!-- فاصل -->
+                <div class="divider">
+                    <span>أو</span>
+                </div>
+
+                <!-- زر تسجيل الدخول بـ Google -->
+                <div id="googleSignInDiv" class="google-signin-container"></div>
             </form>
 
             <!-- نموذج التسجيل -->
@@ -83,23 +91,35 @@
                 <button type="submit" class="btn-gold btn-block">
                     <i class="fas fa-user-plus"></i> إنشاء حساب
                 </button>
+
+                <!-- فاصل -->
+                <div class="divider">
+                    <span>أو</span>
+                </div>
+
+                <!-- زر التسجيل بـ Google -->
+                <div id="googleSignUpDiv" class="google-signin-container"></div>
             </form>
 
-            <div class="auth-message" id="authMessage"></div>
+            <div id="authMessage" class="auth-message"></div>
 
             <div class="auth-footer">
                 <p>بيانات تجريبية للدخول:</p>
-                <p class="demo-accounts">
+                <div class="demo-accounts">
                     <span><i class="fas fa-user-shield"></i> مدير: admin@rakha.sa / admin123</span>
                     <span><i class="fas fa-user"></i> مستخدم: user@rakha.sa / user123</span>
-                </p>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Google Sign-In Library -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
     <script>
-        // تهيئة البيانات الافتراضية
+        // ===== تهيئة النظام =====
         function initSystem() {
+            // تهيئة المستخدمين الافتراضيين
             if (!localStorage.getItem('rakha_users')) {
                 const defaultUsers = [
                     {
@@ -129,13 +149,141 @@
 
         initSystem();
 
-        // التحقق من وجود جلسة نشطة
+        // ===== التحقق من جلسة نشطة =====
         const currentUser = JSON.parse(localStorage.getItem('rakha_current_user'));
         if (currentUser) {
             window.location.href = 'home.html';
         }
 
-        // تبديل التبويبات
+        // ===== تهيئة Google Sign-In =====
+        function initializeGoogleSignIn() {
+            // Google Client ID - يمكنك استبداله بمعرف العميل الخاص بك
+            const GOOGLE_CLIENT_ID = '238339995391-627kluslmk42koqfe2rm08jgofesteuc.apps.googleusercontent.com';
+            
+            // تهيئة Google Identity Services
+            if (typeof google !== 'undefined' && google.accounts) {
+                // لتسجيل الدخول
+                google.accounts.id.initialize({
+                    client_id: GOOGLE_CLIENT_ID,
+                    callback: handleGoogleResponse,
+                    auto_select: false,
+                    cancel_on_tap_outside: true,
+                    context: 'signin'
+                });
+
+                // زر تسجيل الدخول
+                google.accounts.id.renderButton(
+                    document.getElementById('googleSignInDiv'),
+                    { 
+                        theme: 'outline', 
+                        size: 'large',
+                        type: 'standard',
+                        text: 'signin_with',
+                        shape: 'pill',
+                        width: '100%',
+                        locale: 'ar'
+                    }
+                );
+
+                // زر التسجيل
+                google.accounts.id.renderButton(
+                    document.getElementById('googleSignUpDiv'),
+                    { 
+                        theme: 'outline', 
+                        size: 'large',
+                        type: 'standard',
+                        text: 'signup_with',
+                        shape: 'pill',
+                        width: '100%',
+                        locale: 'ar'
+                    }
+                );
+
+                // تعطيل One Tap
+                google.accounts.id.cancel();
+            } else {
+                console.log('Google library not loaded yet');
+                // إعادة المحاولة بعد ثانية
+                setTimeout(initializeGoogleSignIn, 1000);
+            }
+        }
+
+        // ===== معالجة استجابة Google =====
+        function handleGoogleResponse(response) {
+            try {
+                // فك تشفير JWT token
+                const credential = response.credential;
+                const payload = JSON.parse(atob(credential.split('.')[1]));
+                
+                const googleUser = {
+                    googleId: payload.sub,
+                    email: payload.email,
+                    name: payload.name,
+                    picture: payload.picture,
+                    email_verified: payload.email_verified
+                };
+
+                // التحقق من وجود المستخدم أو إنشائه
+                loginWithGoogle(googleUser);
+            } catch (error) {
+                console.error('Google Sign-In Error:', error);
+                showMessage('حدث خطأ في تسجيل الدخول بـ Google', 'error');
+            }
+        }
+
+        // ===== تسجيل الدخول بـ Google =====
+        function loginWithGoogle(googleUser) {
+            let users = JSON.parse(localStorage.getItem('rakha_users') || '[]');
+            
+            // البحث عن مستخدم بنفس البريد الإلكتروني
+            let user = users.find(u => u.email === googleUser.email);
+            
+            if (!user) {
+                // إنشاء مستخدم جديد
+                user = {
+                    id: Date.now(),
+                    name: googleUser.name,
+                    email: googleUser.email,
+                    picture: googleUser.picture,
+                    googleId: googleUser.googleId,
+                    role: 'user',
+                    createdAt: new Date().toISOString()
+                };
+                users.push(user);
+                localStorage.setItem('rakha_users', JSON.stringify(users));
+            } else {
+                // تحديث معلومات Google إذا لم تكن موجودة
+                if (!user.googleId) {
+                    user.googleId = googleUser.googleId;
+                    user.picture = googleUser.picture;
+                    localStorage.setItem('rakha_users', JSON.stringify(users));
+                }
+            }
+            
+            // حفظ المستخدم الحالي
+            const userData = { ...user };
+            delete userData.password;
+            localStorage.setItem('rakha_current_user', JSON.stringify(userData));
+            
+            showMessage('تم تسجيل الدخول بنجاح! جاري التحويل...', 'success');
+            
+            setTimeout(() => {
+                window.location.href = 'home.html';
+            }, 1000);
+        }
+
+        // ===== عرض الرسائل =====
+        function showMessage(text, type) {
+            const msg = document.getElementById('authMessage');
+            msg.textContent = text;
+            msg.className = `auth-message ${type}`;
+            
+            setTimeout(() => {
+                msg.className = 'auth-message';
+            }, 4000);
+        }
+
+        // ===== تبديل التبويبات =====
         const loginTab = document.getElementById('loginTab');
         const registerTab = document.getElementById('registerTab');
         const loginForm = document.getElementById('loginForm');
@@ -155,23 +303,18 @@
             loginForm.style.display = 'none';
         });
 
-        // عرض الرسائل
-        function showMessage(text, type) {
-            const msg = document.getElementById('authMessage');
-            msg.textContent = text;
-            msg.className = `auth-message ${type}`;
-            setTimeout(() => {
-                msg.className = 'auth-message';
-            }, 4000);
-        }
-
-        // تسجيل الدخول
+        // ===== تسجيل الدخول التقليدي =====
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
             const rememberMe = document.getElementById('rememberMe').checked;
+            
+            if (!email || !password) {
+                showMessage('يرجى إدخال البريد الإلكتروني وكلمة المرور', 'error');
+                return;
+            }
             
             const users = JSON.parse(localStorage.getItem('rakha_users') || '[]');
             const user = users.find(u => u.email === email && u.password === password);
@@ -183,9 +326,12 @@
                 
                 if (rememberMe) {
                     localStorage.setItem('rakha_remember', email);
+                } else {
+                    localStorage.removeItem('rakha_remember');
                 }
                 
                 showMessage('تم تسجيل الدخول بنجاح! جاري التحويل...', 'success');
+                
                 setTimeout(() => {
                     window.location.href = 'home.html';
                 }, 1000);
@@ -194,7 +340,7 @@
             }
         });
 
-        // إنشاء حساب جديد
+        // ===== إنشاء حساب جديد =====
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -202,6 +348,12 @@
             const email = document.getElementById('registerEmail').value.trim();
             const password = document.getElementById('registerPassword').value;
             const confirm = document.getElementById('registerConfirm').value;
+            
+            // التحقق من صحة البيانات
+            if (!name || !email || !password) {
+                showMessage('جميع الحقول مطلوبة', 'error');
+                return;
+            }
             
             if (password !== confirm) {
                 showMessage('كلمات المرور غير متطابقة', 'error');
@@ -213,6 +365,12 @@
                 return;
             }
             
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showMessage('يرجى إدخال بريد إلكتروني صحيح', 'error');
+                return;
+            }
+            
             const users = JSON.parse(localStorage.getItem('rakha_users') || '[]');
             
             if (users.find(u => u.email === email)) {
@@ -220,6 +378,7 @@
                 return;
             }
             
+            // إنشاء المستخدم الجديد
             const newUser = {
                 id: Date.now(),
                 name: name,
@@ -234,17 +393,28 @@
             
             showMessage('تم إنشاء الحساب بنجاح! يمكنك تسجيل الدخول الآن', 'success');
             
+            // التحويل إلى تبويب تسجيل الدخول
             setTimeout(() => {
                 loginTab.click();
                 document.getElementById('loginEmail').value = email;
             }, 1500);
         });
 
-        // تعبئة البريد الإلكتروني المحفوظ
+        // ===== تعبئة البريد الإلكتروني المحفوظ =====
         const remembered = localStorage.getItem('rakha_remember');
         if (remembered) {
             document.getElementById('loginEmail').value = remembered;
             document.getElementById('rememberMe').checked = true;
+        }
+
+        // ===== تهيئة Google Sign-In عند تحميل الصفحة =====
+        window.addEventListener('load', function() {
+            setTimeout(initializeGoogleSignIn, 500);
+        });
+
+        // محاولة تهيئة Google Sign-In إذا تم تحميل المكتبة متأخراً
+        if (document.readyState === 'complete') {
+            setTimeout(initializeGoogleSignIn, 500);
         }
     </script>
 </body>
