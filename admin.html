@@ -484,22 +484,25 @@ function formatFileSize(bytes) {
             window.location.href = 'index.html';
         }
         // في admin.html، تحديث دوال التحميل
-async function loadAllData() {
+// تحميل جميع البيانات
+function loadAllData() {
     // تحميل المستخدمين
     allUsers = JSON.parse(localStorage.getItem('rakha_users') || '[]');
     
     // تحميل public.json
-    const publicData = JSON.parse(localStorage.getItem('public_json') || '{"files":[]}');
-    const publicFiles = publicData.files || [];
+    const publicData = localStorage.getItem('public_json');
+    const publicFiles = JSON.parse(publicData || '[]');
     
     // تحميل private.json
-    const privateData = JSON.parse(localStorage.getItem('private_json') || '{"users":{}}');
+    const privateData = localStorage.getItem('private_json');
+    const allPrivateData = JSON.parse(privateData || '{}');
     let privateFiles = [];
-    Object.values(privateData.users).forEach(userFiles => {
-        privateFiles = [...privateFiles, ...userFiles];
+    Object.keys(allPrivateData).forEach(userId => {
+        const userFiles = allPrivateData[userId] || [];
+        privateFiles = [...privateFiles, ...userFiles.map(f => ({ ...f, ownerId: userId }))];
     });
     
-    // دمج الملفات
+    // دمج الملفات للعرض
     allFiles = [
         ...publicFiles.map(f => ({ ...f, folder: 'public.json' })),
         ...privateFiles.map(f => ({ ...f, folder: 'private.json' }))
@@ -510,60 +513,34 @@ async function loadAllData() {
     loadFilesTable();
 }
 
-function loadFilesTable() {
-    const tbody = document.getElementById('adminFilesTable');
+// تحديث الإحصائيات
+function updateStats() {
+    const publicData = localStorage.getItem('public_json');
+    const publicFiles = JSON.parse(publicData || '[]');
     
-    if (allFiles.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center">لا توجد ملفات</td></tr>';
-        return;
-    }
+    const privateData = localStorage.getItem('private_json');
+    const allPrivateData = JSON.parse(privateData || '{}');
+    let privateCount = 0;
+    let totalSize = 0;
+    let totalDownloads = 0;
     
-    tbody.innerHTML = allFiles.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate)).map((file, i) => `
-        <tr>
-            <td>${i + 1}</td>
-            <td>
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="fas ${getFileIcon(file.type)}"></i>
-                    <span>${file.name}</span>
-                </div>
-            </td>
-            <td>${file.uploader}</td>
-            <td>
-                <span class="badge ${file.folder === 'public.json' ? 'public' : 'private'}">
-                    <i class="fas ${file.folder === 'public.json' ? 'fa-folder-open' : 'fa-folder'}"></i>
-                    ${file.folder}
-                </span>
-            </td>
-            <td>${formatFileSize(file.size)}</td>
-            <td>${file.downloads || 0}</td>
-            <td>
-                <div class="action-buttons">
-                    <button class="btn-icon danger" onclick="adminDeleteFile('${file.folder}', ${file.id})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
-}
-
-function adminDeleteFile(folder, fileId) {
-    if (!confirm('هل أنت متأكد من حذف هذا الملف؟')) return;
-    
-    if (folder === 'public.json') {
-        const publicData = JSON.parse(localStorage.getItem('public_json') || '{"files":[]}');
-        publicData.files = publicData.files.filter(f => f.id !== fileId);
-        localStorage.setItem('public_json', JSON.stringify(publicData));
-    } else {
-        const privateData = JSON.parse(localStorage.getItem('private_json') || '{"users":{}}');
-        Object.keys(privateData.users).forEach(userId => {
-            privateData.users[userId] = privateData.users[userId].filter(f => f.id !== fileId);
+    Object.values(allPrivateData).forEach(files => {
+        privateCount += files.length;
+        files.forEach(f => {
+            totalSize += f.size || 0;
+            totalDownloads += f.downloads || 0;
         });
-        localStorage.setItem('private_json', JSON.stringify(privateData));
-    }
+    });
     
-    loadAllData();
-    alert('تم حذف الملف بنجاح');
+    publicFiles.forEach(f => {
+        totalSize += f.size || 0;
+        totalDownloads += f.downloads || 0;
+    });
+    
+    document.getElementById('adminTotalUsers').textContent = allUsers.length;
+    document.getElementById('adminTotalFiles').textContent = publicFiles.length + privateCount;
+    document.getElementById('adminTotalDownloads').textContent = totalDownloads;
+    document.getElementById('adminTotalStorage').textContent = (totalSize / (1024 * 1024)).toFixed(1) + ' MB';
 }
     </script>
 </body>
