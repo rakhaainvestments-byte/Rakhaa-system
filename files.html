@@ -53,7 +53,7 @@
                 <i class="fas fa-folder-open"></i>
                 <div class="folder-details">
                     <h3>📁 public.json</h3>
-                    <p>الملفات العامة - متاحة للجميع</p>
+                    <p>الملفات العامة - تظهر لجميع المستخدمين</p>
                     <span class="folder-count" id="publicFolderCount">0 ملف</span>
                 </div>
             </div>
@@ -61,7 +61,7 @@
                 <i class="fas fa-folder"></i>
                 <div class="folder-details">
                     <h3>📁 private.json</h3>
-                    <p>الملفات الخاصة - مرئية لك فقط</p>
+                    <p>الملفات الخاصة - تظهر لك فقط</p>
                     <span class="folder-count" id="privateFolderCount">0 ملف</span>
                 </div>
             </div>
@@ -118,18 +118,18 @@
                     <small>الحد الأقصى: 10 MB</small>
                 </div>
                 <div class="form-group">
-                    <label>اختر المجلد</label>
+                    <label>اختر مكان الحفظ</label>
                     <div class="folder-select">
                         <label class="folder-option">
                             <input type="radio" name="targetFolder" value="public" checked>
                             <span class="folder-label public">
-                                <i class="fas fa-folder-open"></i> public.json (عام)
+                                <i class="fas fa-folder-open"></i> public.json (عام - يظهر للجميع)
                             </span>
                         </label>
                         <label class="folder-option">
                             <input type="radio" name="targetFolder" value="private">
                             <span class="folder-label private">
-                                <i class="fas fa-folder"></i> private.json (خاص)
+                                <i class="fas fa-folder"></i> private.json (خاص - يظهر لك فقط)
                             </span>
                         </label>
                     </div>
@@ -155,40 +155,40 @@
     </div>
 
     <script>
-        // التحقق من تسجيل الدخول
+        // ===== التحقق من تسجيل الدخول =====
         const currentUser = JSON.parse(localStorage.getItem('rakha_current_user'));
         
         if (!currentUser) {
             window.location.href = 'index.html';
         }
 
-        // بيانات الملفات
+        // ===== المتغيرات العامة =====
         let publicFiles = [];
         let privateFiles = [];
         let currentFilter = 'all';
         let searchTerm = '';
 
-        // تهيئة النظام
-        async function initSystem() {
-            // تهيئة public.json في localStorage
+        // ===== تهيئة النظام =====
+        function initStorage() {
+            // تهيئة public.json
             if (!localStorage.getItem('public_json')) {
-                const defaultPublic = { files: [] };
-                localStorage.setItem('public_json', JSON.stringify(defaultPublic));
+                localStorage.setItem('public_json', JSON.stringify([]));
             }
             
-            // تهيئة private.json في localStorage
+            // تهيئة private.json
             if (!localStorage.getItem('private_json')) {
-                const defaultPrivate = { users: {} };
-                localStorage.setItem('private_json', JSON.stringify(defaultPrivate));
+                localStorage.setItem('private_json', JSON.stringify({}));
             }
         }
 
-        document.addEventListener('DOMContentLoaded', async function() {
-            await initSystem();
+        // ===== تحميل الصفحة =====
+        document.addEventListener('DOMContentLoaded', function() {
+            initStorage();
             updateUserInterface();
-            await loadFiles();
+            loadAllFiles();
         });
 
+        // ===== تحديث واجهة المستخدم =====
         function updateUserInterface() {
             document.getElementById('userName').textContent = currentUser.name;
             document.getElementById('userRole').textContent = currentUser.role === 'admin' ? 'مدير النظام' : 'مستخدم';
@@ -202,20 +202,24 @@
             }
         }
 
-        async function loadFiles() {
-            // تحميل public.json
-            const publicData = JSON.parse(localStorage.getItem('public_json') || '{"files":[]}');
-            publicFiles = publicData.files || [];
+        // ===== تحميل جميع الملفات =====
+        function loadAllFiles() {
+            // تحميل الملفات العامة من public.json
+            const publicData = localStorage.getItem('public_json');
+            publicFiles = JSON.parse(publicData || '[]');
             
-            // تحميل private.json
-            const privateData = JSON.parse(localStorage.getItem('private_json') || '{"users":{}}');
-            privateFiles = privateData.users[currentUser.id] || [];
+            // تحميل الملفات الخاصة من private.json
+            const privateData = localStorage.getItem('private_json');
+            const allPrivateData = JSON.parse(privateData || '{}');
+            privateFiles = allPrivateData[currentUser.id] || [];
             
+            // تحديث العدادات والعرض
             updateCounters();
             displayFiles();
             updateFoldersInfo();
         }
 
+        // ===== تحديث العدادات =====
         function updateCounters() {
             const totalFiles = publicFiles.length + privateFiles.length;
             
@@ -224,11 +228,13 @@
             document.getElementById('privateCount').textContent = privateFiles.length;
         }
 
+        // ===== تحديث معلومات المجلدات =====
         function updateFoldersInfo() {
             document.getElementById('publicFolderCount').textContent = `${publicFiles.length} ملف`;
             document.getElementById('privateFolderCount').textContent = `${privateFiles.length} ملف`;
         }
 
+        // ===== فلترة الملفات =====
         function filterFiles(type) {
             currentFilter = type;
             
@@ -238,11 +244,13 @@
             displayFiles();
         }
 
+        // ===== البحث في الملفات =====
         function searchFiles() {
             searchTerm = document.getElementById('searchFiles').value.toLowerCase();
             displayFiles();
         }
 
+        // ===== عرض الملفات =====
         function displayFiles() {
             const container = document.getElementById('filesContainer');
             
@@ -259,6 +267,7 @@
                 filesToShow = privateFiles.map(f => ({ ...f, folder: 'private' }));
             }
             
+            // تطبيق البحث
             if (searchTerm) {
                 filesToShow = filesToShow.filter(f => 
                     f.name.toLowerCase().includes(searchTerm) ||
@@ -267,6 +276,7 @@
                 );
             }
             
+            // ترتيب الملفات من الأحدث إلى الأقدم
             filesToShow.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
             
             if (filesToShow.length === 0) {
@@ -274,7 +284,7 @@
                 if (currentFilter === 'public') {
                     message = '📁 public.json فارغ - لا توجد ملفات عامة';
                 } else if (currentFilter === 'private') {
-                    message = '📁 private.json فارغ - لم تقم برفع أي ملفات خاصة';
+                    message = '📁 private.json فارغ - لم تقم برفع أي ملفات خاصة بعد';
                 } else {
                     message = 'لا توجد ملفات متاحة';
                 }
@@ -298,6 +308,7 @@
             `;
         }
 
+        // ===== إنشاء بطاقة ملف =====
         function createFileCard(file) {
             const isOwner = file.uploaderId === currentUser.id || currentUser.role === 'admin';
             const icon = getFileIcon(file.type);
@@ -309,8 +320,8 @@
                         <i class="fas ${icon}"></i>
                         <div class="file-badges">
                             <span class="file-badge ${file.folder}">
-                                <i class="fas ${file.folder === 'public' ? 'fa-folder-open' : 'fa-folder'}"></i>
-                                ${folderName}
+                                <i class="fas ${file.folder === 'public' ? 'fa-globe' : 'fa-lock'}"></i>
+                                ${file.folder === 'public' ? 'عام' : 'خاص'}
                             </span>
                             ${file.uploaderId === currentUser.id ? `
                                 <span class="file-badge owner">
@@ -329,6 +340,7 @@
                     <div class="file-stats">
                         <span><i class="fas fa-eye"></i> ${file.views || 0}</span>
                         <span><i class="fas fa-download"></i> ${file.downloads || 0}</span>
+                        <span><i class="fas fa-folder"></i> ${folderName}</span>
                     </div>
                     <div class="file-actions">
                         <button class="btn-icon" onclick="previewFile('${file.folder}', ${file.id})" title="معاينة">
@@ -338,7 +350,7 @@
                             <i class="fas fa-download"></i>
                         </button>
                         ${isOwner ? `
-                            <button class="btn-icon" onclick="moveFile('${file.folder}', ${file.id})" title="${file.folder === 'public' ? 'نقل إلى private.json' : 'نقل إلى public.json'}">
+                            <button class="btn-icon" onclick="moveFile('${file.folder}', ${file.id})" title="${file.folder === 'public' ? 'نقل إلى الخاص' : 'نقل إلى العام'}">
                                 <i class="fas fa-exchange-alt"></i>
                             </button>
                             <button class="btn-icon danger" onclick="deleteFile('${file.folder}', ${file.id})" title="حذف">
@@ -350,6 +362,7 @@
             `;
         }
 
+        // ===== دوال مساعدة =====
         function getFileIcon(type) {
             if (!type) return 'fa-file';
             if (type.includes('pdf')) return 'fa-file-pdf';
@@ -374,6 +387,7 @@
             return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
         }
 
+        // ===== فتح وإغلاق المودال =====
         function openUploadModal() {
             document.getElementById('uploadModal').style.display = 'flex';
         }
@@ -384,7 +398,8 @@
             document.getElementById('uploadProgress').style.display = 'none';
         }
 
-        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+        // ===== رفع ملف جديد =====
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const fileName = document.getElementById('fileName').value.trim();
@@ -414,7 +429,7 @@
             
             const reader = new FileReader();
             
-            reader.onload = async function(event) {
+            reader.onload = function(event) {
                 const newFile = {
                     id: Date.now(),
                     name: fileName || file.name.replace(/\.[^/.]+$/, ""),
@@ -432,16 +447,20 @@
                 
                 // حفظ الملف في المجلد المناسب
                 if (targetFolder === 'public') {
-                    const publicData = JSON.parse(localStorage.getItem('public_json') || '{"files":[]}');
-                    publicData.files.push(newFile);
+                    // حفظ في public.json
+                    const publicData = JSON.parse(localStorage.getItem('public_json') || '[]');
+                    publicData.push(newFile);
                     localStorage.setItem('public_json', JSON.stringify(publicData));
+                    console.log('✅ تم حفظ الملف في public.json');
                 } else {
-                    const privateData = JSON.parse(localStorage.getItem('private_json') || '{"users":{}}');
-                    if (!privateData.users[currentUser.id]) {
-                        privateData.users[currentUser.id] = [];
+                    // حفظ في private.json
+                    const privateData = JSON.parse(localStorage.getItem('private_json') || '{}');
+                    if (!privateData[currentUser.id]) {
+                        privateData[currentUser.id] = [];
                     }
-                    privateData.users[currentUser.id].push(newFile);
+                    privateData[currentUser.id].push(newFile);
                     localStorage.setItem('private_json', JSON.stringify(privateData));
+                    console.log('✅ تم حفظ الملف في private.json');
                 }
                 
                 progressFill.style.width = '100%';
@@ -449,8 +468,8 @@
                 
                 setTimeout(() => {
                     closeUploadModal();
-                    loadFiles();
-                    alert(`تم رفع الملف بنجاح في ${targetFolder === 'public' ? 'public.json' : 'private.json'}!`);
+                    loadAllFiles();
+                    alert(`✅ تم رفع الملف بنجاح في ${targetFolder === 'public' ? 'public.json (سيراه جميع المستخدمين)' : 'private.json (ستراه أنت فقط)'}!`);
                     
                     progressDiv.style.display = 'none';
                     progressFill.style.width = '0%';
@@ -459,17 +478,10 @@
                 }, 500);
             };
             
-            reader.onprogress = function(event) {
-                if (event.lengthComputable) {
-                    const percent = Math.round((event.loaded / event.total) * 100);
-                    progressFill.style.width = percent + '%';
-                    progressText.textContent = percent + '%';
-                }
-            };
-            
             reader.readAsDataURL(file);
         });
 
+        // ===== معاينة ملف =====
         function previewFile(folder, fileId) {
             let file;
             if (folder === 'public') {
@@ -478,16 +490,27 @@
                 file = privateFiles.find(f => f.id === fileId);
             }
             
-            if (!file) return;
+            if (!file) {
+                alert('الملف غير موجود');
+                return;
+            }
             
+            // زيادة عدد المشاهدات
             file.views = (file.views || 0) + 1;
-            saveFileData(folder);
+            
+            if (folder === 'public') {
+                localStorage.setItem('public_json', JSON.stringify(publicFiles));
+            } else {
+                const privateData = JSON.parse(localStorage.getItem('private_json') || '{}');
+                privateData[currentUser.id] = privateFiles;
+                localStorage.setItem('private_json', JSON.stringify(privateData));
+            }
             
             const modal = document.getElementById('previewModal');
             const title = document.getElementById('previewTitle');
             const content = document.getElementById('previewContent');
             
-            title.textContent = `${file.name} (${folder}.json)`;
+            title.textContent = file.name;
             
             if (file.type && file.type.includes('image')) {
                 content.innerHTML = `
@@ -518,6 +541,7 @@
             document.getElementById('previewModal').style.display = 'none';
         }
 
+        // ===== تنزيل ملف =====
         function downloadFile(folder, fileId) {
             let file;
             if (folder === 'public') {
@@ -526,10 +550,21 @@
                 file = privateFiles.find(f => f.id === fileId);
             }
             
-            if (!file) return;
+            if (!file) {
+                alert('الملف غير موجود');
+                return;
+            }
             
+            // زيادة عدد التنزيلات
             file.downloads = (file.downloads || 0) + 1;
-            saveFileData(folder);
+            
+            if (folder === 'public') {
+                localStorage.setItem('public_json', JSON.stringify(publicFiles));
+            } else {
+                const privateData = JSON.parse(localStorage.getItem('private_json') || '{}');
+                privateData[currentUser.id] = privateFiles;
+                localStorage.setItem('private_json', JSON.stringify(privateData));
+            }
             
             const link = document.createElement('a');
             link.href = `data:${file.type};base64,${file.data}`;
@@ -539,6 +574,7 @@
             document.body.removeChild(link);
         }
 
+        // ===== نقل ملف بين المجلدات =====
         function moveFile(fromFolder, fileId) {
             let file;
             if (fromFolder === 'public') {
@@ -547,7 +583,10 @@
                 file = privateFiles.find(f => f.id === fileId);
             }
             
-            if (!file) return;
+            if (!file) {
+                alert('الملف غير موجود');
+                return;
+            }
             
             if (currentUser.id !== file.uploaderId && currentUser.role !== 'admin') {
                 alert('ليس لديك صلاحية لنقل هذا الملف');
@@ -556,39 +595,40 @@
             
             const toFolder = fromFolder === 'public' ? 'private' : 'public';
             
-            if (!confirm(`هل أنت متأكد من نقل الملف من ${fromFolder}.json إلى ${toFolder}.json؟`)) return;
+            if (!confirm(`نقل الملف من ${fromFolder === 'public' ? 'public.json' : 'private.json'} إلى ${toFolder === 'public' ? 'public.json' : 'private.json'}؟`)) {
+                return;
+            }
             
             // حذف من المجلد القديم
             if (fromFolder === 'public') {
                 publicFiles = publicFiles.filter(f => f.id !== fileId);
-                const publicData = JSON.parse(localStorage.getItem('public_json') || '{"files":[]}');
-                publicData.files = publicFiles;
-                localStorage.setItem('public_json', JSON.stringify(publicData));
+                localStorage.setItem('public_json', JSON.stringify(publicFiles));
             } else {
                 privateFiles = privateFiles.filter(f => f.id !== fileId);
-                const privateData = JSON.parse(localStorage.getItem('private_json') || '{"users":{}}');
-                privateData.users[currentUser.id] = privateFiles;
+                const privateData = JSON.parse(localStorage.getItem('private_json') || '{}');
+                privateData[currentUser.id] = privateFiles;
                 localStorage.setItem('private_json', JSON.stringify(privateData));
             }
             
             // إضافة إلى المجلد الجديد
             if (toFolder === 'public') {
-                const publicData = JSON.parse(localStorage.getItem('public_json') || '{"files":[]}');
-                publicData.files.push(file);
+                const publicData = JSON.parse(localStorage.getItem('public_json') || '[]');
+                publicData.push(file);
                 localStorage.setItem('public_json', JSON.stringify(publicData));
             } else {
-                const privateData = JSON.parse(localStorage.getItem('private_json') || '{"users":{}}');
-                if (!privateData.users[currentUser.id]) {
-                    privateData.users[currentUser.id] = [];
+                const privateData = JSON.parse(localStorage.getItem('private_json') || '{}');
+                if (!privateData[currentUser.id]) {
+                    privateData[currentUser.id] = [];
                 }
-                privateData.users[currentUser.id].push(file);
+                privateData[currentUser.id].push(file);
                 localStorage.setItem('private_json', JSON.stringify(privateData));
             }
             
-            loadFiles();
-            alert(`تم نقل الملف إلى ${toFolder}.json بنجاح`);
+            loadAllFiles();
+            alert(`✅ تم نقل الملف إلى ${toFolder === 'public' ? 'public.json' : 'private.json'} بنجاح`);
         }
 
+        // ===== حذف ملف =====
         function deleteFile(folder, fileId) {
             let file;
             if (folder === 'public') {
@@ -597,48 +637,41 @@
                 file = privateFiles.find(f => f.id === fileId);
             }
             
-            if (!file) return;
+            if (!file) {
+                alert('الملف غير موجود');
+                return;
+            }
             
             if (currentUser.id !== file.uploaderId && currentUser.role !== 'admin') {
                 alert('ليس لديك صلاحية لحذف هذا الملف');
                 return;
             }
             
-            if (!confirm(`هل أنت متأكد من حذف هذا الملف من ${folder}.json؟`)) return;
+            if (!confirm('هل أنت متأكد من حذف هذا الملف؟')) {
+                return;
+            }
             
             if (folder === 'public') {
                 publicFiles = publicFiles.filter(f => f.id !== fileId);
-                const publicData = JSON.parse(localStorage.getItem('public_json') || '{"files":[]}');
-                publicData.files = publicFiles;
-                localStorage.setItem('public_json', JSON.stringify(publicData));
+                localStorage.setItem('public_json', JSON.stringify(publicFiles));
             } else {
                 privateFiles = privateFiles.filter(f => f.id !== fileId);
-                const privateData = JSON.parse(localStorage.getItem('private_json') || '{"users":{}}');
-                privateData.users[currentUser.id] = privateFiles;
+                const privateData = JSON.parse(localStorage.getItem('private_json') || '{}');
+                privateData[currentUser.id] = privateFiles;
                 localStorage.setItem('private_json', JSON.stringify(privateData));
             }
             
-            loadFiles();
-            alert('تم حذف الملف بنجاح');
+            loadAllFiles();
+            alert('✅ تم حذف الملف بنجاح');
         }
 
-        function saveFileData(folder) {
-            if (folder === 'public') {
-                const publicData = JSON.parse(localStorage.getItem('public_json') || '{"files":[]}');
-                publicData.files = publicFiles;
-                localStorage.setItem('public_json', JSON.stringify(publicData));
-            } else {
-                const privateData = JSON.parse(localStorage.getItem('private_json') || '{"users":{}}');
-                privateData.users[currentUser.id] = privateFiles;
-                localStorage.setItem('private_json', JSON.stringify(privateData));
-            }
-        }
-
+        // ===== تسجيل الخروج =====
         function logout() {
             localStorage.removeItem('rakha_current_user');
             window.location.href = 'index.html';
         }
 
+        // ===== إغلاق المودال عند النقر خارجه =====
         window.addEventListener('click', function(e) {
             const modals = document.querySelectorAll('.modal');
             modals.forEach(modal => {
