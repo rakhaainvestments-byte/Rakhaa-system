@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الرئيسية - رخاء للتنمية المستدامة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- شريط التنقل -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-gem"></i>
+                <span>رخاء</span>
+                <span class="logo-sub">للتنمية المستدامة</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="home.html" class="active"><i class="fas fa-home"></i> الرئيسية</a></li>
+                <li><a href="files.html"><i class="fas fa-folder-open"></i> الملفات</a></li>
+                <li><a href="admin.html" id="adminLink" style="display: none;"><i class="fas fa-cog"></i> لوحة التحكم</a></li>
+            </ul>
+            <div class="nav-actions">
+                <div class="user-profile">
+                    <div class="user-avatar" id="userAvatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-dropdown">
+                        <div class="user-info">
+                            <span id="userName"></span>
+                            <span id="userRole"></span>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- المحتوى الرئيسي -->
+    <main>
+        <!-- قسم الترحيب -->
+        <section class="hero-home">
+            <div class="hero-content">
+                <h1>مرحباً بك في <span class="gold-text">رخاء</span></h1>
+                <p id="welcomeMessage"></p>
+                <div class="hero-actions">
+                    <a href="files.html" class="btn-gold btn-large">
+                        <i class="fas fa-cloud-upload-alt"></i> رفع الملفات
+                    </a>
+                    <a href="files.html" class="btn-outline-gold btn-large">
+                        <i class="fas fa-folder-open"></i> استعراض الملفات
+                    </a>
+                </div>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <i class="fas fa-file-alt"></i>
+                    <div>
+                        <span class="stat-number" id="myFilesCount">0</span>
+                        <span class="stat-label">ملفاتي</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-globe"></i>
+                    <div>
+                        <span class="stat-number" id="publicFilesCount">0</span>
+                        <span class="stat-label">ملفات عامة</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-download"></i>
+                    <div>
+                        <span class="stat-number" id="myDownloads">0</span>
+                        <span class="stat-label">تنزيلات</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- قسم الخدمات -->
+        <section class="services-section">
+            <div class="container">
+                <h2 class="section-title">خدمات <span class="gold-text">رخاء</span></h2>
+                <p class="section-subtitle">نظام متكامل لإدارة ملفات التنمية المستدامة</p>
+                
+                <div class="services-grid">
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <h3>رفع الملفات</h3>
+                        <p>ارفع ملفاتك بسهولة مع إمكانية تحديد الصلاحيات عام أو خاص</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h3>ملفات آمنة</h3>
+                        <p>ملفاتك الخاصة محمية ولا يمكن لأحد الوصول إليها غيرك</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-share-alt"></i>
+                        </div>
+                        <h3>مشاركة الملفات</h3>
+                        <p>شارك الملفات العامة مع جميع المستخدمين بكل سهولة</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                        <h3>حاسبة الضريبة</h3>
+                        <p>أداة متكاملة لحساب ضريبة القيمة المضافة من ملفات Excel</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- قسم آخر الملفات -->
+        <section class="recent-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">آخر <span class="gold-text">الملفات</span></h2>
+                    <a href="files.html" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>
+                </div>
+                
+                <div class="files-grid" id="recentFilesGrid">
+                    <div class="loading-spinner">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>جاري تحميل الملفات...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- تذييل الصفحة -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <i class="fas fa-gem"></i>
+                    <span>رخاء للتنمية المستدامة</span>
+                </div>
+                <p class="copyright">© 2024 جميع الحقوق محفوظة</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // التحقق من تسجيل الدخول
+        const currentUser = JSON.parse(localStorage.getItem('rakha_current_user'));
+        
+        if (!currentUser) {
+            window.location.href = 'index.html';
+        }
+
+        // تحديث واجهة المستخدم
+        document.addEventListener('DOMContentLoaded', function() {
+            updateUserInterface();
+            loadStats();
+            loadRecentFiles();
+        });
+
+        function updateUserInterface() {
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userRole').textContent = currentUser.role === 'admin' ? 'مدير النظام' : 'مستخدم';
+            document.getElementById('welcomeMessage').textContent = `نحن سعداء بوجودك معنا، ${currentUser.name.split(' ')[0]}`;
+            
+            if (currentUser.role === 'admin') {
+                document.getElementById('adminLink').style.display = 'block';
+            }
+        }
+
+        function loadStats() {
+            const files = JSON.parse(localStorage.getItem('rakha_files') || '[]');
+            
+            const myFiles = files.filter(f => f.uploaderId === currentUser.id);
+            const publicFiles = files.filter(f => f.isPublic);
+            const myDownloads = files.reduce((sum, f) => {
+                return sum + (f.uploaderId === currentUser.id ? (f.downloads || 0) : 0);
+            }, 0);
+            
+            document.getElementById('myFilesCount').textContent = myFiles.length;
+            document.getElementById('publicFilesCount').textContent = publicFiles.length;
+            document.getElementById('myDownloads').textContent = myDownloads;
+        }
+
+        function loadRecentFiles() {
+            const files = JSON.parse(localStorage.getItem('rakha_files') || '[]');
+            const recentFiles = files
+                .filter(f => f.isPublic || f.uploaderId === currentUser.id)
+                .sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate))
+                .slice(0, 4);
+            
+            const grid = document.getElementById('recentFilesGrid');
+            
+            if (recentFiles.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-folder-open"></i>
+                        <p>لا توجد ملفات بعد</p>
+                        <a href="files.html" class="btn-gold">رفع أول ملف</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = recentFiles.map(file => `
+                <div class="file-card">
+                    <div class="file-card-header">
+                        <i class="fas ${getFileIcon(file.type)}"></i>
+                        <span class="file-badge ${file.isPublic ? 'public' : 'private'}">
+                            ${file.isPublic ? 'عام' : 'خاص'}
+                        </span>
+                    </div>
+                    <h4>${file.name}</h4>
+                    <p class="file-description">${file.description || 'لا يوجد وصف'}</p>
+                    <div class="file-meta">
+                        <span><i class="fas fa-user"></i> ${file.uploader}</span>
+                        <span><i class="fas fa-calendar"></i> ${formatDate(file.uploadDate)}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getFileIcon(type) {
+            if (type.includes('pdf')) return 'fa-file-pdf';
+            if (type.includes('excel') || type.includes('spreadsheet')) return 'fa-file-excel';
+            if (type.includes('word') || type.includes('document')) return 'fa-file-word';
+            if (type.includes('image')) return 'fa-file-image';
+            return 'fa-file';
+        }
+
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString('ar-SA');
+        }
+
+        function logout() {
+            localStorage.removeItem('rakha_current_user');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
