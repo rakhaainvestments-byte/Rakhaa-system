@@ -255,6 +255,60 @@
             localStorage.removeItem('rakha_current_user');
             window.location.href = 'index.html';
         }
+        // تحميل الملفات الحديثة
+function loadRecentFiles() {
+    // تحميل الملفات العامة من public.json
+    const publicData = localStorage.getItem('public_json');
+    const publicFiles = JSON.parse(publicData || '[]');
+    
+    // تحميل الملفات الخاصة للمستخدم الحالي
+    const privateData = localStorage.getItem('private_json');
+    const allPrivateData = JSON.parse(privateData || '{}');
+    const myPrivateFiles = allPrivateData[currentUser.id] || [];
+    
+    // دمج الملفات
+    const allAvailableFiles = [
+        ...publicFiles.map(f => ({ ...f, folder: 'public' })),
+        ...myPrivateFiles.map(f => ({ ...f, folder: 'private' }))
+    ];
+    
+    // ترتيب وعرض أحدث 4 ملفات
+    const recentFiles = allAvailableFiles
+        .sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate))
+        .slice(0, 4);
+    
+    const grid = document.getElementById('recentFilesGrid');
+    
+    if (recentFiles.length === 0) {
+        grid.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-folder-open"></i>
+                <p>لا توجد ملفات بعد</p>
+                <a href="files.html" class="btn-gold">
+                    <i class="fas fa-cloud-upload-alt"></i> رفع أول ملف
+                </a>
+            </div>
+        `;
+        return;
+    }
+    
+    grid.innerHTML = recentFiles.map(file => `
+        <div class="file-card">
+            <div class="file-card-header">
+                <i class="fas ${getFileIcon(file.type)}"></i>
+                <span class="file-badge ${file.folder}">
+                    ${file.folder === 'public' ? '📁 عام' : '🔒 خاص'}
+                </span>
+            </div>
+            <h4>${file.name}</h4>
+            <p class="file-description">${file.description || 'لا يوجد وصف'}</p>
+            <div class="file-meta">
+                <span><i class="fas fa-user"></i> ${file.uploader}</span>
+                <span><i class="fas fa-calendar"></i> ${formatDate(file.uploadDate)}</span>
+            </div>
+        </div>
+    `).join('');
+}
     </script>
 </body>
 </html>
