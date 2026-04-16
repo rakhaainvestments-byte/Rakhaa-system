@@ -1,1 +1,629 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - رخاء للتنمية المستدامة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- شريط التنقل -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-leaf"></i>
+                <span>رخاء</span>
+                <span class="logo-sub">للتنمية المستدامة</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html"><i class="fas fa-home"></i> الرئيسية</a></li>
+                <li><a href="files.html"><i class="fas fa-folder-open"></i> الملفات</a></li>
+                <li><a href="admin.html" class="active"><i class="fas fa-cog"></i> لوحة التحكم</a></li>
+            </ul>
+            <div class="nav-actions">
+                <div class="user-profile" id="userProfile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-cog"></i>
+                    </div>
+                    <div class="user-dropdown">
+                        <div class="user-info" id="userInfo"></div>
+                        <div class="dropdown-menu">
+                            <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
 
+    <!-- المحتوى الرئيسي -->
+    <main class="admin-container">
+        <!-- رأس الصفحة -->
+        <div class="admin-header">
+            <h1><i class="fas fa-tachometer-alt"></i> لوحة التحكم</h1>
+            <div class="admin-actions">
+                <button class="btn-secondary" onclick="exportAllData()">
+                    <i class="fas fa-download"></i> تصدير جميع البيانات
+                </button>
+                <button class="btn-primary" onclick="refreshData()">
+                    <i class="fas fa-sync-alt"></i> تحديث
+                </button>
+            </div>
+        </div>
+
+        <!-- بطاقات الإحصائيات السريعة -->
+        <div class="quick-stats">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-content">
+                    <span class="stat-value" id="quickTotalUsers">0</span>
+                    <span class="stat-label">مستخدم</span>
+                    <span class="stat-trend" id="userTrend">+0 هذا الشهر</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+                <div class="stat-content">
+                    <span class="stat-value" id="quickTotalFiles">0</span>
+                    <span class="stat-label">ملف</span>
+                    <span class="stat-trend" id="fileTrend">+0 هذا الأسبوع</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-download"></i></div>
+                <div class="stat-content">
+                    <span class="stat-value" id="quickTotalDownloads">0</span>
+                    <span class="stat-label">تنزيل</span>
+                    <span class="stat-trend" id="downloadTrend">+0 اليوم</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-database"></i></div>
+                <div class="stat-content">
+                    <span class="stat-value" id="quickStorage">0 MB</span>
+                    <span class="stat-label">مساحة مستخدمة</span>
+                    <span class="stat-trend" id="storageTrend">من 100 MB</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- التبويبات الرئيسية -->
+        <div class="admin-tabs-container">
+            <div class="admin-tabs">
+                <button class="admin-tab active" onclick="switchAdminTab('dashboard')">
+                    <i class="fas fa-chart-pie"></i> لوحة المعلومات
+                </button>
+                <button class="admin-tab" onclick="switchAdminTab('users')">
+                    <i class="fas fa-users-cog"></i> إدارة المستخدمين
+                </button>
+                <button class="admin-tab" onclick="switchAdminTab('files')">
+                    <i class="fas fa-folder-tree"></i> إدارة الملفات
+                </button>
+                <button class="admin-tab" onclick="switchAdminTab('calculator')">
+                    <i class="fas fa-calculator"></i> حاسبة الضريبة
+                </button>
+                <button class="admin-tab" onclick="switchAdminTab('reports')">
+                    <i class="fas fa-chart-bar"></i> التقارير
+                </button>
+                <button class="admin-tab" onclick="switchAdminTab('settings')">
+                    <i class="fas fa-sliders-h"></i> الإعدادات
+                </button>
+            </div>
+
+            <!-- محتوى التبويبات -->
+            <div class="admin-tab-contents">
+                
+                <!-- تبويب لوحة المعلومات -->
+                <div id="dashboard" class="admin-tab-content active">
+                    <div class="dashboard-grid">
+                        <!-- رسم بياني للإحصائيات -->
+                        <div class="dashboard-card chart-card">
+                            <h3><i class="fas fa-chart-line"></i> إحصائيات النظام</h3>
+                            <canvas id="statsChart"></canvas>
+                        </div>
+                        
+                        <!-- رسم بياني لتوزيع الملفات -->
+                        <div class="dashboard-card chart-card">
+                            <h3><i class="fas fa-chart-pie"></i> توزيع الملفات</h3>
+                            <canvas id="filesChart"></canvas>
+                        </div>
+                        
+                        <!-- آخر المستخدمين المسجلين -->
+                        <div class="dashboard-card">
+                            <h3><i class="fas fa-user-plus"></i> آخر المستخدمين</h3>
+                            <div class="recent-list" id="recentUsers"></div>
+                        </div>
+                        
+                        <!-- آخر الملفات المرفوعة -->
+                        <div class="dashboard-card">
+                            <h3><i class="fas fa-file-upload"></i> آخر الملفات</h3>
+                            <div class="recent-list" id="recentFilesList"></div>
+                        </div>
+                        
+                        <!-- الأنشطة الأخيرة -->
+                        <div class="dashboard-card full-width">
+                            <h3><i class="fas fa-history"></i> سجل النشاطات</h3>
+                            <div class="activity-log" id="activityLog"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- تبويب إدارة المستخدمين -->
+                <div id="users" class="admin-tab-content">
+                    <div class="section-header">
+                        <h2><i class="fas fa-users"></i> إدارة المستخدمين</h2>
+                        <div class="section-actions">
+                            <button class="btn-primary" onclick="openAddUserModal()">
+                                <i class="fas fa-user-plus"></i> إضافة مستخدم
+                            </button>
+                            <button class="btn-secondary" onclick="exportUsers()">
+                                <i class="fas fa-file-export"></i> تصدير
+                            </button>
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="userSearch" placeholder="بحث عن مستخدم..." onkeyup="filterUsers()">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table" id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>المستخدم</th>
+                                    <th>البريد الإلكتروني</th>
+                                    <th>الصلاحية</th>
+                                    <th>تاريخ التسجيل</th>
+                                    <th>الملفات</th>
+                                    <th>الحالة</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody"></tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- ترقيم الصفحات -->
+                    <div class="pagination" id="usersPagination"></div>
+                </div>
+
+                <!-- تبويب إدارة الملفات -->
+                <div id="files" class="admin-tab-content">
+                    <div class="section-header">
+                        <h2><i class="fas fa-folder-open"></i> إدارة الملفات</h2>
+                        <div class="section-actions">
+                            <button class="btn-primary" onclick="openUploadModal()">
+                                <i class="fas fa-cloud-upload-alt"></i> رفع ملف
+                            </button>
+                            <button class="btn-secondary" onclick="exportFiles()">
+                                <i class="fas fa-file-export"></i> تصدير
+                            </button>
+                            <select id="fileTypeFilter" class="filter-select" onchange="filterFiles()">
+                                <option value="all">جميع الملفات</option>
+                                <option value="public">العامة فقط</option>
+                                <option value="private">الخاصة فقط</option>
+                                <option value="excel">Excel</option>
+                                <option value="pdf">PDF</option>
+                                <option value="image">صور</option>
+                            </select>
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="fileSearch" placeholder="بحث عن ملف..." onkeyup="filterFiles()">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table" id="filesTable">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="selectAllFiles" onchange="toggleSelectAll()"></th>
+                                    <th>الملف</th>
+                                    <th>النوع</th>
+                                    <th>الرافع</th>
+                                    <th>تاريخ الرفع</th>
+                                    <th>الحجم</th>
+                                    <th>الرؤية</th>
+                                    <th>التنزيلات</th>
+                                    <th>المشاهدات</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="filesTableBody"></tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- إجراءات جماعية -->
+                    <div class="bulk-actions" id="bulkActions" style="display: none;">
+                        <span>تم تحديد <span id="selectedCount">0</span> ملف</span>
+                        <button class="btn-warning" onclick="bulkToggleVisibility()">
+                            <i class="fas fa-eye-slash"></i> تغيير الرؤية
+                        </button>
+                        <button class="btn-danger" onclick="bulkDelete()">
+                            <i class="fas fa-trash"></i> حذف المحدد
+                        </button>
+                    </div>
+                    
+                    <!-- ترقيم الصفحات -->
+                    <div class="pagination" id="filesPagination"></div>
+                </div>
+
+                <!-- تبويب حاسبة الضريبة -->
+                <div id="calculator" class="admin-tab-content">
+                    <div class="vat-calculator">
+                        <h2><i class="fas fa-calculator"></i> حاسبة ضريبة القيمة المضافة</h2>
+                        
+                        <!-- منطقة رفع الملف -->
+                        <div class="upload-section">
+                            <div class="upload-area" id="uploadArea">
+                                <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                                <div class="upload-text">اختر ملف Excel أو اسحبه هنا</div>
+                                <div class="upload-note">يدعم ملفات XLSX, XLS</div>
+                                <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
+                            </div>
+                        </div>
+
+                        <!-- حقول الإدخال -->
+                        <div class="manual-inputs">
+                            <div class="input-group">
+                                <label>رصيد أول المدة</label>
+                                <input type="number" id="manualOpening" value="0" step="0.01" onchange="recalculateVAT()">
+                            </div>
+                            <div class="input-group">
+                                <label>المسددات خلال الفترة</label>
+                                <input type="number" id="manualPayments" value="0" step="0.01" onchange="recalculateVAT()">
+                            </div>
+                            <div class="input-group">
+                                <label>نسبة الضريبة (%)</label>
+                                <input type="number" id="vatRate" value="15" step="0.01" onchange="recalculateVAT()">
+                            </div>
+                        </div>
+
+                        <!-- ملخص الضريبة -->
+                        <div class="summary-section">
+                            <div class="summary-card">
+                                <div class="summary-label">الضريبة الواردة (مستلم)</div>
+                                <div class="summary-value" id="totalInput">0.00</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="summary-label">الضريبة الصادرة</div>
+                                <div class="summary-value" id="totalOutput">0.00</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="summary-label">صافي الضريبة</div>
+                                <div class="summary-value" id="netVAT">0.00</div>
+                            </div>
+                        </div>
+
+                        <!-- جدول البيانات -->
+                        <div class="table-container">
+                            <table id="dataTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>المسدد</th>
+                                        <th>نسبة الضريبة</th>
+                                        <th>قيمة الضريبة</th>
+                                        <th>قيمة التعامل</th>
+                                        <th>حالة الفاتورة</th>
+                                        <th>الاتجاه</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody"></tbody>
+                            </table>
+                        </div>
+
+                        <!-- الرصيد النهائي -->
+                        <div class="balance-section">
+                            <div class="balance-row">
+                                <span>رصيد أول المدة</span>
+                                <span id="openingBalance">0.00</span>
+                            </div>
+                            <div class="balance-row">
+                                <span>الضريبة الواردة</span>
+                                <span id="inputBalance">0.00</span>
+                            </div>
+                            <div class="balance-row">
+                                <span>الضريبة الصادرة</span>
+                                <span id="outputBalance">0.00</span>
+                            </div>
+                            <div class="balance-row">
+                                <span>المسددات</span>
+                                <span id="paymentsBalance">0.00</span>
+                            </div>
+                            <div class="balance-row final">
+                                <span>الرصيد النهائي</span>
+                                <span id="closingBalance">0.00</span>
+                            </div>
+                        </div>
+
+                        <!-- أزرار التحكم -->
+                        <div class="action-buttons">
+                            <button class="btn-primary" onclick="saveCurrentExcel()">
+                                <i class="fas fa-save"></i> حفظ الملف
+                            </button>
+                            <button class="btn-secondary" onclick="downloadCurrentExcel()">
+                                <i class="fas fa-download"></i> تنزيل Excel
+                            </button>
+                            <button class="btn-secondary" onclick="printReport()">
+                                <i class="fas fa-print"></i> طباعة التقرير
+                            </button>
+                        </div>
+
+                        <!-- الملفات المحفوظة -->
+                        <div class="saved-files-section">
+                            <h3><i class="fas fa-history"></i> الملفات المحفوظة</h3>
+                            <div id="savedFiles" class="saved-files-list"></div>
+                            <button class="btn-danger" onclick="clearAllFiles()">
+                                <i class="fas fa-trash"></i> مسح جميع الملفات
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- تبويب التقارير -->
+                <div id="reports" class="admin-tab-content">
+                    <div class="reports-container">
+                        <h2><i class="fas fa-chart-bar"></i> التقارير والإحصائيات</h2>
+                        
+                        <div class="report-filters">
+                            <select id="reportPeriod" class="filter-select">
+                                <option value="today">اليوم</option>
+                                <option value="week">هذا الأسبوع</option>
+                                <option value="month" selected>هذا الشهر</option>
+                                <option value="year">هذه السنة</option>
+                                <option value="all">جميع الفترات</option>
+                            </select>
+                            <button class="btn-primary" onclick="generateReport()">
+                                <i class="fas fa-chart-line"></i> إنشاء التقرير
+                            </button>
+                            <button class="btn-secondary" onclick="exportReport()">
+                                <i class="fas fa-file-excel"></i> تصدير التقرير
+                            </button>
+                        </div>
+                        
+                        <div class="report-grid">
+                            <!-- تقرير المستخدمين -->
+                            <div class="report-card">
+                                <h3>تقرير المستخدمين</h3>
+                                <div id="userReport"></div>
+                            </div>
+                            
+                            <!-- تقرير الملفات -->
+                            <div class="report-card">
+                                <h3>تقرير الملفات</h3>
+                                <div id="fileReport"></div>
+                            </div>
+                            
+                            <!-- تقرير النشاط -->
+                            <div class="report-card full-width">
+                                <h3>تقرير النشاط</h3>
+                                <canvas id="activityChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- تبويب الإعدادات -->
+                <div id="settings" class="admin-tab-content">
+                    <div class="settings-container">
+                        <h2><i class="fas fa-cog"></i> إعدادات النظام</h2>
+                        
+                        <form id="settingsForm" onsubmit="saveSettings(event)">
+                            <!-- إعدادات عامة -->
+                            <div class="settings-section">
+                                <h3>الإعدادات العامة</h3>
+                                
+                                <div class="form-group">
+                                    <label>اسم الموقع</label>
+                                    <input type="text" id="siteName" value="رخاء للتنمية المستدامة" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>وصف الموقع</label>
+                                    <textarea id="siteDescription" rows="3">نظام متكامل لإدارة التنمية المستدامة والملفات الضريبية</textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>البريد الإلكتروني للتواصل</label>
+                                    <input type="email" id="contactEmail" value="info@rakha.sa">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>رقم الهاتف</label>
+                                    <input type="tel" id="contactPhone" value="+966 11 234 5678">
+                                </div>
+                            </div>
+                            
+                            <!-- إعدادات الملفات -->
+                            <div class="settings-section">
+                                <h3>إعدادات الملفات</h3>
+                                
+                                <div class="form-group">
+                                    <label>الحد الأقصى لحجم الملف (MB)</label>
+                                    <input type="number" id="maxFileSize" value="10" min="1" max="100">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>أنواع الملفات المسموحة</label>
+                                    <div class="checkbox-group">
+                                        <label><input type="checkbox" value="pdf" checked> PDF</label>
+                                        <label><input type="checkbox" value="doc" checked> Word</label>
+                                        <label><input type="checkbox" value="xls" checked> Excel</label>
+                                        <label><input type="checkbox" value="jpg" checked> صور</label>
+                                        <label><input type="checkbox" value="txt" checked> نصوص</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>
+                                        <input type="checkbox" id="allowPublicUploads"> السماح برفع الملفات العامة
+                                    </label>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>
+                                        <input type="checkbox" id="requireApproval" checked> الملفات الجديدة تحتاج موافقة
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- إعدادات الأمان -->
+                            <div class="settings-section">
+                                <h3>إعدادات الأمان</h3>
+                                
+                                <div class="form-group">
+                                    <label>
+                                        <input type="checkbox" id="enable2FA"> تفعيل المصادقة الثنائية
+                                    </label>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>مدة الجلسة (دقائق)</label>
+                                    <input type="number" id="sessionTimeout" value="60" min="5" max="480">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>الحد الأقصى لمحاولات تسجيل الدخول</label>
+                                    <input type="number" id="maxLoginAttempts" value="5" min="1" max="10">
+                                </div>
+                            </div>
+                            
+                            <!-- إعدادات النسخ الاحتياطي -->
+                            <div class="settings-section">
+                                <h3>النسخ الاحتياطي</h3>
+                                
+                                <div class="form-group">
+                                    <button type="button" class="btn-secondary" onclick="backupData()">
+                                        <i class="fas fa-download"></i> تنزيل نسخة احتياطية
+                                    </button>
+                                    <button type="button" class="btn-secondary" onclick="restoreData()">
+                                        <i class="fas fa-upload"></i> استعادة نسخة احتياطية
+                                    </button>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>
+                                        <input type="checkbox" id="autoBackup" checked> نسخ احتياطي تلقائي يومي
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="settings-actions">
+                                <button type="submit" class="btn-primary">
+                                    <i class="fas fa-save"></i> حفظ الإعدادات
+                                </button>
+                                <button type="button" class="btn-secondary" onclick="resetSettings()">
+                                    <i class="fas fa-undo"></i> استعادة الإعدادات الافتراضية
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- مودال إضافة/تعديل مستخدم -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeUserModal()">&times;</span>
+            <h2 id="userModalTitle">إضافة مستخدم جديد</h2>
+            <form id="userForm" onsubmit="saveUser(event)">
+                <input type="hidden" id="userId">
+                <div class="form-group">
+                    <label>الاسم الكامل</label>
+                    <input type="text" id="userName" required>
+                </div>
+                <div class="form-group">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" id="userEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="userPassword" minlength="6">
+                    <small>اتركه فارغاً إذا كنت لا تريد تغييره</small>
+                </div>
+                <div class="form-group">
+                    <label>الصلاحية</label>
+                    <select id="userRole">
+                        <option value="user">مستخدم</option>
+                        <option value="admin">مدير</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>الحالة</label>
+                    <select id="userStatus">
+                        <option value="active">نشط</option>
+                        <option value="inactive">غير نشط</option>
+                        <option value="blocked">محظور</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeUserModal()">إلغاء</button>
+                    <button type="submit" class="btn-primary">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- مودال رفع ملف -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeUploadModal()">&times;</span>
+            <h2>رفع ملف جديد</h2>
+            <form id="uploadForm" onsubmit="uploadFile(event)">
+                <div class="form-group">
+                    <label>اسم الملف</label>
+                    <input type="text" id="uploadFileName" required>
+                </div>
+                <div class="form-group">
+                    <label>وصف الملف</label>
+                    <textarea id="uploadFileDesc" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>اختر الملف</label>
+                    <input type="file" id="uploadFileInput" required>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="uploadFilePublic"> ملف عام
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>تصنيف الملف</label>
+                    <select id="uploadFileCategory">
+                        <option value="general">عام</option>
+                        <option value="financial">مالي</option>
+                        <option value="legal">قانوني</option>
+                        <option value="technical">تقني</option>
+                        <option value="report">تقرير</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeUploadModal()">إلغاء</button>
+                    <button type="submit" class="btn-primary">رفع</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- مودال عرض تفاصيل الملف -->
+    <div id="fileDetailsModal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="close" onclick="closeFileDetailsModal()">&times;</span>
+            <h2>تفاصيل الملف</h2>
+            <div id="fileDetailsContent"></div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="admin.js"></script>
+    <script src="vat-calculator.js"></script>
+</body>
+</html>
