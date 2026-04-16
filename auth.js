@@ -46,7 +46,7 @@ function initializeAuth() {
 // إعداد Google Sign-In
 function initializeGoogleSignIn() {
     google.accounts.id.initialize({
-        client_id: '238339995391-gr51rtprnd27vgts2r9gsbsinbc6434c.apps.googleusercontent.com', // يجب استبداله بمعرف عميل حقيقي
+        client_id: '238339995391-627kluslmk42koqfe2rm08jgofesteuc.apps.googleusercontent.com', // يجب استبداله بمعرف عميل حقيقي
         callback: handleGoogleSignIn,
         auto_select: false,
         cancel_on_tap_outside: true
