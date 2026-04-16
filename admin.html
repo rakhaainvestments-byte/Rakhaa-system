@@ -4,19 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة التحكم - رخاء</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <div class="logo">
-                <i class="fas fa-gem"></i>
-                <span>رخاء</span>
-                <span class="logo-sub">للتنمية المستدامة</span>
-            </div>
+            <div class="logo"><i class="fas fa-gem"></i><span>رخاء</span><span class="logo-sub">للعاملين</span></div>
             <ul class="nav-menu">
                 <li><a href="home.html"><i class="fas fa-home"></i> الرئيسية</a></li>
                 <li><a href="files.html"><i class="fas fa-folder-open"></i> الملفات</a></li>
@@ -24,16 +19,11 @@
             </ul>
             <div class="nav-actions">
                 <div class="user-profile">
-                    <div class="user-avatar">
-                        <i class="fas fa-user"></i>
-                    </div>
+                    <div class="user-avatar" id="userAvatar"><i class="fas fa-user"></i></div>
                     <div class="user-dropdown">
-                        <div class="user-info">
-                            <span id="userName"></span>
-                            <span id="userRole"></span>
-                        </div>
+                        <div class="user-info"><span id="userName"></span><span>مدير النظام</span></div>
                         <div class="dropdown-divider"></div>
-                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a>
+                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</a>
                     </div>
                 </div>
             </div>
@@ -41,507 +31,131 @@
     </nav>
 
     <main class="container">
-        <div class="page-header">
-            <h1><i class="fas fa-cog gold-text"></i> لوحة التحكم</h1>
-        </div>
-
+        <h1><i class="fas fa-cog gold-text"></i> لوحة التحكم</h1>
         <div class="admin-tabs">
-            <button class="tab-btn active" onclick="switchTab('dashboard')">لوحة المعلومات</button>
-            <button class="tab-btn" onclick="switchTab('users')">إدارة المستخدمين</button>
-            <button class="tab-btn" onclick="switchTab('files')">إدارة الملفات</button>
-            <button class="tab-btn" onclick="switchTab('calculator')">حاسبة الضريبة</button>
+            <button class="tab-btn active" data-tab="users">المستخدمين</button>
+            <button class="tab-btn" data-tab="files">الملفات</button>
+            <button class="tab-btn" data-tab="pending">طلبات الانضمام</button>
         </div>
 
-        <!-- لوحة المعلومات -->
-        <div id="dashboard" class="tab-content active">
+        <!-- تبويب المستخدمين -->
+        <div id="tab-users" class="tab-content active">
+            <table class="data-table">
+                <thead><tr><th>الاسم</th><th>البريد</th><th>الدور</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+                <tbody id="usersTable"></tbody>
+            </table>
+        </div>
+
+        <!-- تبويب الملفات -->
+        <div id="tab-files" class="tab-content">
             <div class="stats-grid">
-                <div class="stat-box">
-                    <i class="fas fa-users"></i>
-                    <h3 id="totalUsersStat">0</h3>
-                    <p>المستخدمين</p>
-                </div>
-                <div class="stat-box">
-                    <i class="fas fa-file-alt"></i>
-                    <h3 id="totalFilesStat">0</h3>
-                    <p>الملفات</p>
-                </div>
-                <div class="stat-box">
-                    <i class="fas fa-download"></i>
-                    <h3 id="totalDownloadsStat">0</h3>
-                    <p>التنزيلات</p>
-                </div>
-                <div class="stat-box">
-                    <i class="fas fa-database"></i>
-                    <h3 id="totalStorageStat">0 MB</h3>
-                    <p>المساحة</p>
-                </div>
+                <div class="stat-box"><i class="fas fa-globe"></i><h3 id="totalPublic">0</h3><p>ملفات عامة</p></div>
+                <div class="stat-box"><i class="fas fa-lock"></i><h3 id="totalPrivate">0</h3><p>ملفات خاصة</p></div>
             </div>
+            <table class="data-table">
+                <thead><tr><th>الملف</th><th>الرافع</th><th>النوع</th><th>تاريخ</th><th>حذف</th></tr></thead>
+                <tbody id="filesTable"></tbody>
+            </table>
         </div>
 
-        <!-- إدارة المستخدمين -->
-        <div id="users" class="tab-content">
-            <div style="margin-bottom: 1.5rem; text-align: left;">
-                <button class="btn-gold" onclick="openAddUserModal()">
-                    <i class="fas fa-user-plus"></i> إضافة مستخدم
-                </button>
-            </div>
-            <div class="table-container">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>الاسم</th>
-                            <th>البريد الإلكتروني</th>
-                            <th>الصلاحية</th>
-                            <th>تاريخ التسجيل</th>
-                            <th>الإجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody id="usersTableBody"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- إدارة الملفات -->
-        <div id="files" class="tab-content">
-            <div class="table-container">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>الملف</th>
-                            <th>الرافع</th>
-                            <th>النوع</th>
-                            <th>الحجم</th>
-                            <th>التنزيلات</th>
-                            <th>الإجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adminFilesTable"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- حاسبة الضريبة -->
-        <div id="calculator" class="tab-content">
-            <div class="upload-area" id="excelUploadArea">
-                <i class="fas fa-cloud-upload-alt"></i>
-                <p>اختر ملف Excel أو اسحبه هنا</p>
-                <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="display: none;">
-            </div>
-
-            <div class="manual-inputs">
-                <div class="input-group">
-                    <label>رصيد أول المدة</label>
-                    <input type="number" id="openingBalance" value="0" step="0.01" onchange="calculateVAT()">
-                </div>
-                <div class="input-group">
-                    <label>المسددات</label>
-                    <input type="number" id="payments" value="0" step="0.01" onchange="calculateVAT()">
-                </div>
-            </div>
-
-            <div class="vat-summary">
-                <div class="vat-card">
-                    <h4>الضريبة الواردة</h4>
-                    <p id="totalInput">0.00</p>
-                </div>
-                <div class="vat-card">
-                    <h4>الضريبة الصادرة</h4>
-                    <p id="totalOutput">0.00</p>
-                </div>
-                <div class="vat-card">
-                    <h4>الصافي</h4>
-                    <p id="netVAT">0.00</p>
-                </div>
-            </div>
-
-            <div class="table-container">
-                <table class="data-table" id="vatTable">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>قيمة الضريبة</th>
-                            <th>قيمة التعامل</th>
-                            <th>الاتجاه</th>
-                        </tr>
-                    </thead>
-                    <tbody id="vatTableBody"></tbody>
-                </table>
-            </div>
-
-            <div class="vat-balance">
-                <p>الرصيد النهائي</p>
-                <span id="finalBalance">0.00</span>
-            </div>
+        <!-- تبويب طلبات الانضمام -->
+        <div id="tab-pending" class="tab-content">
+            <table class="data-table">
+                <thead><tr><th>الاسم</th><th>البريد</th><th>تاريخ الطلب</th><th>إجراءات</th></tr></thead>
+                <tbody id="pendingTable"></tbody>
+            </table>
         </div>
     </main>
 
-    <!-- مودال إضافة مستخدم -->
-    <div id="userModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeUserModal()">&times;</span>
-            <h2>إضافة مستخدم جديد</h2>
-            <form id="addUserForm">
-                <div class="form-group">
-                    <label>الاسم</label>
-                    <input type="text" id="newUserName" required>
-                </div>
-                <div class="form-group">
-                    <label>البريد الإلكتروني</label>
-                    <input type="email" id="newUserEmail" required>
-                </div>
-                <div class="form-group">
-                    <label>كلمة المرور</label>
-                    <input type="password" id="newUserPassword" required>
-                </div>
-                <div class="form-group">
-                    <label>الصلاحية</label>
-                    <select id="newUserRole">
-                        <option value="user">مستخدم</option>
-                        <option value="admin">مدير</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn-gold btn-block">إضافة</button>
-            </form>
-        </div>
-    </div>
-
+    <script src="auth.js"></script>
     <script>
-        const currentUser = JSON.parse(localStorage.getItem('rakha_current_user'));
-        
-        if (!currentUser || currentUser.role !== 'admin') {
-            window.location.href = 'home.html';
+        const currentUser = checkAuth();
+        if (!currentUser || currentUser.role !== 'admin') window.location.href = 'home.html';
+
+        let users = [], publicFiles = [], privateFiles = {};
+
+        function loadData() {
+            users = JSON.parse(localStorage.getItem('rakha_users') || '[]');
+            publicFiles = JSON.parse(localStorage.getItem('public_files') || '[]');
+            privateFiles = JSON.parse(localStorage.getItem('private_files') || '{}');
+            renderUsers();
+            renderFiles();
+            renderPending();
         }
 
-        let allUsers = [];
-        let allFiles = [];
-        let totalInput = 0;
-        let totalOutput = 0;
-
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('userName').textContent = currentUser.name;
-            document.getElementById('userRole').textContent = 'مدير النظام';
-            
-            loadAllData();
-            setupExcelUpload();
-        });
-
-        function loadAllData() {
-            allUsers = JSON.parse(localStorage.getItem('rakha_users') || '[]');
-            allFiles = JSON.parse(localStorage.getItem('rakha_files') || '[]');
-            
-            updateStats();
-            loadUsersTable();
-            loadFilesTable();
-        }
-
-        function updateStats() {
-            document.getElementById('totalUsersStat').textContent = allUsers.length;
-            document.getElementById('totalFilesStat').textContent = allFiles.length;
-            
-            const downloads = allFiles.reduce((sum, f) => sum + (f.downloads || 0), 0);
-            document.getElementById('totalDownloadsStat').textContent = downloads;
-            
-            const size = allFiles.reduce((sum, f) => sum + (f.size || 0), 0);
-            document.getElementById('totalStorageStat').textContent = (size / 1024 / 1024).toFixed(1) + ' MB';
-        }
-
-        function loadUsersTable() {
-            const tbody = document.getElementById('usersTableBody');
-            
-            if (allUsers.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center">لا يوجد مستخدمين</td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = allUsers.map((user, i) => `
+        function renderUsers() {
+            const tbody = document.getElementById('usersTable');
+            tbody.innerHTML = users.filter(u=>u.role!=='admin').map(u => `
                 <tr>
-                    <td>${i + 1}</td>
-                    <td>${user.name}</td>
-                    <td>${user.email}</td>
-                    <td><span class="badge ${user.role}">${user.role === 'admin' ? 'مدير' : 'مستخدم'}</span></td>
-                    <td>${new Date(user.createdAt).toLocaleDateString('ar-SA')}</td>
+                    <td>${u.name}</td><td>${u.email}</td><td>${u.role}</td>
+                    <td><span class="badge ${u.status}">${u.status==='active'?'نشط':u.status==='pending'?'معلق':'محظور'}</span></td>
                     <td>
-                        ${user.role !== 'admin' ? `
-                            <button class="btn-icon danger" onclick="deleteUser(${user.id})">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        ` : ''}
+                        ${u.status==='pending'?`<button class="btn-icon" onclick="approveUser(${u.id})"><i class="fas fa-check"></i></button>`:''}
+                        <button class="btn-icon danger" onclick="deleteUser(${u.id})"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>
             `).join('');
         }
 
-        function loadFilesTable() {
-    const tbody = document.getElementById('adminFilesTable');
-    
-    if (allFiles.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center">لا توجد ملفات</td></tr>';
-        return;
-    }
-    
-    tbody.innerHTML = allFiles.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate)).map((file, i) => `
-        <tr>
-            <td>${i + 1}</td>
-            <td>
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="fas ${getFileIcon(file.type)}"></i>
-                    <span>${file.name}</span>
-                </div>
-            </td>
-            <td>${file.uploader}</td>
-            <td>
-                <span class="badge ${file.isPublic ? 'public' : 'private'}">
-                    ${file.isPublic ? 'عام' : 'خاص'}
-                </span>
-            </td>
-            <td>${formatFileSize(file.size)}</td>
-            <td>${file.downloads || 0}</td>
-            <td>
-                <div class="action-buttons">
-                    <button class="btn-icon" onclick="toggleFilePublic(${file.id})" title="${file.isPublic ? 'جعله خاص' : 'جعله عام'}">
-                        <i class="fas ${file.isPublic ? 'fa-lock' : 'fa-globe'}"></i>
-                    </button>
-                    <button class="btn-icon danger" onclick="deleteFile(${file.id})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
-}
-
-function toggleFilePublic(fileId) {
-    const file = allFiles.find(f => f.id === fileId);
-    if (!file) return;
-    
-    file.isPublic = !file.isPublic;
-    localStorage.setItem('rakha_files', JSON.stringify(allFiles));
-    loadFilesTable();
-}
-
-function getFileIcon(type) {
-    if (!type) return 'fa-file';
-    if (type.includes('pdf')) return 'fa-file-pdf';
-    if (type.includes('excel')) return 'fa-file-excel';
-    if (type.includes('word')) return 'fa-file-word';
-    if (type.includes('image')) return 'fa-file-image';
-    return 'fa-file';
-}
-
-function formatFileSize(bytes) {
-    if (!bytes) return '0 B';
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-}
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            document.getElementById(tabId).classList.add('active');
+        function renderFiles() {
+            let allFiles = [...publicFiles.map(f=>({...f, folder:'public'}))];
+            Object.entries(privateFiles).forEach(([uid, arr])=> { allFiles.push(...arr.map(f=>({...f, folder:'private', ownerId:uid}))); });
+            allFiles.sort((a,b)=> new Date(b.uploadDate)-new Date(a.uploadDate));
+            document.getElementById('totalPublic').textContent = publicFiles.length;
+            document.getElementById('totalPrivate').textContent = allFiles.length - publicFiles.length;
+            const tbody = document.getElementById('filesTable');
+            tbody.innerHTML = allFiles.map(f => `
+                <tr><td>${f.name}</td><td>${f.uploader}</td><td>${f.folder==='public'?'عام':'خاص'}</td>
+                <td>${new Date(f.uploadDate).toLocaleDateString('ar-SA')}</td>
+                <td><button class="btn-icon danger" onclick="adminDeleteFile('${f.folder}',${f.id},'${f.ownerId||''}')"><i class="fas fa-trash"></i></button></td></tr>
+            `).join('');
         }
 
-        function openAddUserModal() {
-            document.getElementById('userModal').style.display = 'flex';
+        function renderPending() {
+            const pending = users.filter(u => u.status === 'pending');
+            document.getElementById('pendingTable').innerHTML = pending.map(u => `
+                <tr><td>${u.name}</td><td>${u.email}</td><td>${new Date(u.createdAt).toLocaleDateString('ar-SA')}</td>
+                <td><button class="btn-icon" onclick="approveUser(${u.id})"><i class="fas fa-check"></i></button>
+                <button class="btn-icon danger" onclick="rejectUser(${u.id})"><i class="fas fa-times"></i></button></td></tr>
+            `).join('');
         }
 
-        function closeUserModal() {
-            document.getElementById('userModal').style.display = 'none';
-            document.getElementById('addUserForm').reset();
-        }
-
-        document.getElementById('addUserForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const name = document.getElementById('newUserName').value;
-            const email = document.getElementById('newUserEmail').value;
-            const password = document.getElementById('newUserPassword').value;
-            const role = document.getElementById('newUserRole').value;
-            
-            if (allUsers.find(u => u.email === email)) {
-                alert('البريد الإلكتروني مستخدم مسبقاً');
-                return;
+        window.approveUser = function(id) {
+            const user = users.find(u=>u.id===id);
+            if (user) { user.status = 'active'; localStorage.setItem('rakha_users', JSON.stringify(users)); loadData(); }
+        };
+        window.rejectUser = window.deleteUser = function(id) {
+            if (!confirm('تأكيد الحذف؟')) return;
+            users = users.filter(u=>u.id!==id);
+            localStorage.setItem('rakha_users', JSON.stringify(users));
+            loadData();
+        };
+        window.adminDeleteFile = function(folder, id, ownerId) {
+            if (!confirm('حذف الملف؟')) return;
+            if (folder==='public') {
+                publicFiles = publicFiles.filter(f=>f.id!==id);
+                localStorage.setItem('public_files', JSON.stringify(publicFiles));
+            } else {
+                if (privateFiles[ownerId]) {
+                    privateFiles[ownerId] = privateFiles[ownerId].filter(f=>f.id!==id);
+                    localStorage.setItem('private_files', JSON.stringify(privateFiles));
+                }
             }
-            
-            const newUser = {
-                id: Date.now(),
-                name,
-                email,
-                password,
-                role,
-                createdAt: new Date().toISOString()
-            };
-            
-            allUsers.push(newUser);
-            localStorage.setItem('rakha_users', JSON.stringify(allUsers));
-            
-            closeUserModal();
-            loadAllData();
-            alert('تم إضافة المستخدم بنجاح');
+            loadData();
+        };
+
+        // التبويبات
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', function(){
+            document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+            this.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+            document.getElementById('tab-'+this.dataset.tab).classList.add('active');
+        }));
+
+        document.addEventListener('DOMContentLoaded', ()=>{
+            document.getElementById('userName').textContent = currentUser.name;
+            loadData();
         });
-
-        function deleteUser(userId) {
-            if (!confirm('هل أنت متأكد من حذف هذا المستخدم؟')) return;
-            
-            allUsers = allUsers.filter(u => u.id !== userId);
-            localStorage.setItem('rakha_users', JSON.stringify(allUsers));
-            loadAllData();
-        }
-
-        function deleteFile(fileId) {
-            if (!confirm('هل أنت متأكد من حذف هذا الملف؟')) return;
-            
-            allFiles = allFiles.filter(f => f.id !== fileId);
-            localStorage.setItem('rakha_files', JSON.stringify(allFiles));
-            loadAllData();
-        }
-
-        function setupExcelUpload() {
-            const area = document.getElementById('excelUploadArea');
-            const input = document.getElementById('excelFileInput');
-            
-            area.addEventListener('click', () => input.click());
-            
-            area.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                area.style.borderColor = 'var(--navy)';
-            });
-            
-            area.addEventListener('dragleave', () => {
-                area.style.borderColor = 'var(--gold)';
-            });
-            
-            area.addEventListener('drop', (e) => {
-                e.preventDefault();
-                area.style.borderColor = 'var(--gold)';
-                
-                const file = e.dataTransfer.files[0];
-                if (file) processExcel(file);
-            });
-            
-            input.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) processExcel(file);
-            });
-        }
-
-        function processExcel(file) {
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                const rows = XLSX.utils.sheet_to_json(sheet);
-                
-                totalInput = 0;
-                totalOutput = 0;
-                
-                const tbody = document.getElementById('vatTableBody');
-                tbody.innerHTML = '';
-                
-                rows.forEach((row, i) => {
-                    const vat = parseFloat(row['ضريبة القيمة المضافة (قيمة)'] || row['VAT Value'] || 0);
-                    const value = parseFloat(row['قيمة التعامل'] || row['Transaction Value'] || 0);
-                    const direction = row['اتجاه الفاتورة'] || row['Invoice Direction'] || '';
-                    
-                    if (direction.includes('مستلم')) totalInput += vat;
-                    if (direction.includes('صادر')) totalOutput += vat;
-                    
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${i + 1}</td>
-                            <td>${vat.toFixed(2)}</td>
-                            <td>${value.toFixed(2)}</td>
-                            <td>${direction}</td>
-                        </tr>
-                    `;
-                });
-                
-                calculateVAT();
-            };
-            
-            reader.readAsArrayBuffer(file);
-        }
-
-        function calculateVAT() {
-            const opening = parseFloat(document.getElementById('openingBalance').value) || 0;
-            const payments = parseFloat(document.getElementById('payments').value) || 0;
-            
-            document.getElementById('totalInput').textContent = totalInput.toFixed(2);
-            document.getElementById('totalOutput').textContent = totalOutput.toFixed(2);
-            document.getElementById('netVAT').textContent = (totalOutput - totalInput).toFixed(2);
-            
-            const final = opening - totalInput + totalOutput - payments;
-            document.getElementById('finalBalance').textContent = final.toFixed(2);
-        }
-
-        function logout() {
-            localStorage.removeItem('rakha_current_user');
-            window.location.href = 'index.html';
-        }
-        // في admin.html، تحديث دوال التحميل
-// تحميل جميع البيانات
-function loadAllData() {
-    // تحميل المستخدمين
-    allUsers = JSON.parse(localStorage.getItem('rakha_users') || '[]');
-    
-    // تحميل public.json
-    const publicData = localStorage.getItem('public_json');
-    const publicFiles = JSON.parse(publicData || '[]');
-    
-    // تحميل private.json
-    const privateData = localStorage.getItem('private_json');
-    const allPrivateData = JSON.parse(privateData || '{}');
-    let privateFiles = [];
-    Object.keys(allPrivateData).forEach(userId => {
-        const userFiles = allPrivateData[userId] || [];
-        privateFiles = [...privateFiles, ...userFiles.map(f => ({ ...f, ownerId: userId }))];
-    });
-    
-    // دمج الملفات للعرض
-    allFiles = [
-        ...publicFiles.map(f => ({ ...f, folder: 'public.json' })),
-        ...privateFiles.map(f => ({ ...f, folder: 'private.json' }))
-    ];
-    
-    updateStats();
-    loadUsersTable();
-    loadFilesTable();
-}
-
-// تحديث الإحصائيات
-function updateStats() {
-    const publicData = localStorage.getItem('public_json');
-    const publicFiles = JSON.parse(publicData || '[]');
-    
-    const privateData = localStorage.getItem('private_json');
-    const allPrivateData = JSON.parse(privateData || '{}');
-    let privateCount = 0;
-    let totalSize = 0;
-    let totalDownloads = 0;
-    
-    Object.values(allPrivateData).forEach(files => {
-        privateCount += files.length;
-        files.forEach(f => {
-            totalSize += f.size || 0;
-            totalDownloads += f.downloads || 0;
-        });
-    });
-    
-    publicFiles.forEach(f => {
-        totalSize += f.size || 0;
-        totalDownloads += f.downloads || 0;
-    });
-    
-    document.getElementById('adminTotalUsers').textContent = allUsers.length;
-    document.getElementById('adminTotalFiles').textContent = publicFiles.length + privateCount;
-    document.getElementById('adminTotalDownloads').textContent = totalDownloads;
-    document.getElementById('adminTotalStorage').textContent = (totalSize / (1024 * 1024)).toFixed(1) + ' MB';
-}
     </script>
 </body>
 </html>
