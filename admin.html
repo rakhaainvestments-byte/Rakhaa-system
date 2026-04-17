@@ -38,7 +38,6 @@
             <button class="tab-btn" data-tab="pending">طلبات الانضمام</button>
         </div>
 
-        <!-- تبويب المستخدمين -->
         <div id="tab-users" class="tab-content active">
             <table class="data-table">
                 <thead><tr><th>الاسم</th><th>البريد</th><th>الدور</th><th>الحالة</th><th>إجراءات</th></tr></thead>
@@ -46,7 +45,6 @@
             </table>
         </div>
 
-        <!-- تبويب الملفات -->
         <div id="tab-files" class="tab-content">
             <div class="stats-grid">
                 <div class="stat-box"><i class="fas fa-globe"></i><h3 id="totalPublic">0</h3><p>ملفات عامة</p></div>
@@ -58,7 +56,6 @@
             </table>
         </div>
 
-        <!-- تبويب طلبات الانضمام -->
         <div id="tab-pending" class="tab-content">
             <table class="data-table">
                 <thead><tr><th>الاسم</th><th>البريد</th><th>تاريخ الطلب</th><th>إجراءات</th></tr></thead>
@@ -144,7 +141,6 @@
             loadData();
         };
 
-        // التبويبات
         document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', function(){
             document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
             this.classList.add('active');
