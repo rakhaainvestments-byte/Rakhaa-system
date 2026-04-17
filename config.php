@@ -3,9 +3,9 @@
 session_start();
 
 // إعدادات Google OAuth
-define('GOOGLE_CLIENT_ID', 'YOUR_CLIENT_ID.apps.googleusercontent.com');
-define('GOOGLE_CLIENT_SECRET', 'YOUR_CLIENT_SECRET');
-define('GOOGLE_REDIRECT_URI', 'http://localhost/rakha-system/google-callback.php'); // عدلها حسب نطاقك
+define('GOOGLE_CLIENT_ID', '238339995391-627kluslmk42koqfe2rm08jgofesteuc.apps.googleusercontent.com');
+define('GOOGLE_CLIENT_SECRET', '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');
+define('GOOGLE_REDIRECT_URI', 'https://rakhaasystem.qzz.io/google-callback.php'); // عدلها حسب نطاقك
 
 // مسارات ملفات JSON
 define('USERS_FILE', __DIR__ . '/users.json');
