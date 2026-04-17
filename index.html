@@ -1,49 +1,111 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>رخاء - تسجيل الدخول</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رخاء للتنمية المستدامة - تسجيل الدخول</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body class="login-page">
-  <div class="login-container">
-    <div class="logo-area">
-      <i class="fas fa-leaf" style="color: #C9A84C; font-size: 3rem;"></i>
-      <h1>رخاء <span>للتنمية المستدامة</span></h1>
-    </div>
-    <div class="login-box">
-      <h2>تسجيل الدخول</h2>
-      <form id="loginForm">
-        <div class="input-group">
-          <i class="fas fa-envelope"></i>
-          <input type="email" id="email" placeholder="البريد الإلكتروني" required>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="logo-section">
+                <div class="logo-icon">🌿</div>
+                <h1>رخاء</h1>
+                <p>للتنمية المستدامة</p>
+            </div>
+            
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="email">البريد الإلكتروني</label>
+                    <input type="email" id="email" name="email" required placeholder="example@domain.com">
+                </div>
+                <div class="form-group">
+                    <label for="password">كلمة المرور</label>
+                    <input type="password" id="password" name="password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">تسجيل الدخول</button>
+            </form>
+            
+            <div class="divider">
+                <span>أو</span>
+            </div>
+            
+            <div class="google-signin">
+                <div id="googleBtn" class="google-btn">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                    <span>تسجيل الدخول باستخدام Google</span>
+                </div>
+            </div>
+            
+            <div class="login-footer">
+                <p>لأغراض العرض: <br> admin@rakha.com / admin123<br>user@rakha.com / user123</p>
+            </div>
         </div>
-        <div class="input-group">
-          <i class="fas fa-lock"></i>
-          <input type="password" id="password" placeholder="كلمة المرور" required>
-        </div>
-        <button type="submit" class="btn-primary">دخول</button>
-      </form>
-      <div class="separator">أو</div>
-      <button class="google-btn" id="googleSignIn">
-        <i class="fab fa-google"></i> تسجيل الدخول بحساب Google
-      </button>
-      <p id="loginError" class="error-msg"></p>
-      
     </div>
-  </div>
-  <script src="auth.js"></script>
-  <script>
-    // تهيئة المستخدمين الافتراضيين
-    if (!localStorage.getItem('rokhaa_users')) {
-      const defaultUsers = [
-        { email: 'admin@rokhaa.com', password: 'admin123', name: 'مدير النظام', role: 'admin' },
-        { email: 'user@rokhaa.com', password: 'user123', name: 'موظف', role: 'user' }
-      ];
-      localStorage.setItem('rokhaa_users', JSON.stringify(defaultUsers));
-    }
-  </script>
+
+    <script src="storage.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        // تهيئة صفحة تسجيل الدخول
+        document.addEventListener('DOMContentLoaded', function() {
+            // إذا كان المستخدم مسجل دخوله بالفعل، توجيه إلى home.html
+            if (Auth.isLoggedIn()) {
+                window.location.href = 'home.html';
+                return;
+            }
+
+            // مستخدم افتراضي للمشرف إذا لم توجد بيانات
+            if (!Storage.get('users')) {
+                const defaultUsers = [
+                    {
+                        id: '1',
+                        email: 'admin@rakha.com',
+                        password: 'admin123',
+                        name: 'مدير النظام',
+                        role: 'admin',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '2',
+                        email: 'user@rakha.com',
+                        password: 'user123',
+                        name: 'موظف',
+                        role: 'user',
+                        createdAt: new Date().toISOString()
+                    }
+                ];
+                Storage.set('users', defaultUsers);
+            }
+
+            // معالجة تسجيل الدخول اليدوي
+            document.getElementById('loginForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                
+                const user = Auth.login(email, password);
+                if (user) {
+                    window.location.href = 'home.html';
+                } else {
+                    alert('❌ البريد الإلكتروني أو كلمة المرور غير صحيحة');
+                }
+            });
+
+            // محاكاة Google Sign-In
+            document.getElementById('googleBtn').addEventListener('click', function() {
+                const mockGoogleUser = {
+                    email: 'google.user@gmail.com',
+                    name: 'مستخدم Google',
+                    picture: ''
+                };
+                
+                const user = Auth.googleSignIn(mockGoogleUser);
+                if (user) {
+                    window.location.href = 'home.html';
+                }
+            });
+        });
+    </script>
 </body>
 </html>
