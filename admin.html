@@ -1,79 +1,103 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>رخاء - لوحة الإدارة</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رخاء - لوحة تحكم المشرف</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="app-container">
-    <div class="sidebar">
-      <div class="logo"><i class="fas fa-leaf" style="color: #C9A84C; font-size: 2rem;"></i><h2>رخاء</h2><small>للتنمية المستدامة</small></div>
-      <div class="nav">
-        <a href="home.html"><i class="fas fa-calculator"></i> حاسبة الضريبة</a>
-        <a href="files.html"><i class="fas fa-folder-open"></i> الملفات</a>
-        <a href="admin.html" class="active"><i class="fas fa-user-shield"></i> الإدارة</a>
-      </div>
-      <div class="user-info">
-        <i class="fas fa-user-circle"></i><div class="user-details"><div class="user-name" id="sidebarUserName">...</div><div class="user-role" id="sidebarUserRole">...</div></div>
-        <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
-      </div>
-    </div>
-    <div class="main-content">
-      <div class="page-header"><h1><i class="fas fa-user-shield" style="color: #C9A84C;"></i> لوحة الإدارة</h1></div>
-      <div class="card"><h3 class="card-title">إدارة المستخدمين</h3><button class="btn-gold" onclick="openAddUserModal()"><i class="fas fa-plus"></i> إضافة مستخدم</button>
-        <div class="table-responsive"><table id="usersTable"><thead><tr><th>البريد</th><th>الاسم</th><th>الدور</th><th>إجراءات</th></tr></thead><tbody></tbody></table></div>
-      </div>
-      <div class="card"><h3 class="card-title">جميع الملفات</h3><div id="allFilesList" class="file-list"></div></div>
-    </div>
-  </div>
-  <div id="addUserModal" style="display:none; position:fixed; top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;">
-    <div style="background:white;padding:30px;border-radius:16px;width:400px;">
-      <h3>إضافة مستخدم</h3>
-      <input id="newEmail" placeholder="البريد" style="width:100%;margin:10px 0;padding:10px;"><br>
-      <input id="newName" placeholder="الاسم" style="width:100%;margin:10px 0;padding:10px;"><br>
-      <input id="newPassword" type="password" placeholder="كلمة المرور" style="width:100%;margin:10px 0;padding:10px;"><br>
-      <select id="newRole" style="width:100%;padding:10px;"><option value="user">موظف</option><option value="admin">مدير</option></select><br>
-      <button class="btn-primary" onclick="addUser()">حفظ</button><button class="btn-outline" onclick="closeModal()">إلغاء</button>
-    </div>
-  </div>
-  <script src="auth.js"></script>
-  <script src="files-manager.js"></script>
-  <script>
-    let currentUser = null;
-    const USERS_KEY = 'rokhaa_users';
-    document.addEventListener('DOMContentLoaded', ()=>{
-      currentUser = requireAdmin(); if(!currentUser) return;
-      updateSidebarUser(); renderUsersTable(); renderAllFiles();
-    });
-    function getUsers(){ return JSON.parse(localStorage.getItem(USERS_KEY))||[]; }
-    function saveUsers(u){ localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
-    function renderUsersTable(){
-      const users = getUsers();
-      document.querySelector('#usersTable tbody').innerHTML = users.map(u=>`<tr><td>${u.email}</td><td>${u.name}</td><td>${u.role==='admin'?'مدير':'موظف'}</td><td><button onclick="deleteUser('${u.email}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
-    }
-    function deleteUser(email){
-      if(email===currentUser.email) return alert('لا يمكنك حذف حسابك');
-      if(!confirm('حذف المستخدم؟')) return;
-      let users = getUsers().filter(u=>u.email!==email);
-      saveUsers(users); renderUsersTable();
-    }
-    function openAddUserModal(){ document.getElementById('addUserModal').style.display='flex'; }
-    function closeModal(){ document.getElementById('addUserModal').style.display='none'; }
-    function addUser(){
-      const email=document.getElementById('newEmail').value.trim(), name=document.getElementById('newName').value.trim(), password=document.getElementById('newPassword').value, role=document.getElementById('newRole').value;
-      if(!email||!name||!password) return alert('الحقول مطلوبة');
-      const users=getUsers(); if(users.find(u=>u.email===email)) return alert('البريد موجود');
-      users.push({email,name,password,role}); saveUsers(users); closeModal(); renderUsersTable();
-    }
-    function renderAllFiles(){
-      const files=getAllFiles(), container=document.getElementById('allFilesList');
-      if(!files.length) return container.innerHTML='<p>لا توجد ملفات</p>';
-      container.innerHTML=files.map(f=>`<div class="file-item"><div><strong>${f.name}</strong> (${f.owner}) ${f.isPublic?'عام':'خاص'}</div><button onclick="downloadFileById('${f.id}')"><i class="fas fa-download"></i></button></div>`).join('');
-    }
-    function downloadFileById(id){ const f=getAllFiles().find(x=>x.id===id); if(f) downloadFile(f); }
-  </script>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <span class="brand-icon">🌿</span>
+                <span>رخاء للتنمية المستدامة</span>
+            </div>
+            <div class="nav-menu">
+                <a href="home.html" class="nav-link">الرئيسية</a>
+                <a href="files.html" class="nav-link">الملفات</a>
+                <a href="admin.html" class="nav-link active">المشرف</a>
+                <div class="user-menu">
+                    <span id="userName" class="user-name"></span>
+                    <button id="logoutBtn" class="btn btn-outline btn-sm">تسجيل الخروج</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="page-header">
+            <h1>لوحة تحكم المشرف</h1>
+            <p>إدارة المستخدمين والملفات في النظام</p>
+        </div>
+
+        <div class="admin-grid">
+            <!-- إدارة المستخدمين -->
+            <div class="card">
+                <h2>👥 المستخدمين</h2>
+                <div class="table-responsive">
+                    <table class="data-table" id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>البريد الإلكتروني</th>
+                                <th>الاسم</th>
+                                <th>الدور</th>
+                                <th>تاريخ التسجيل</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- إدارة جميع الملفات -->
+            <div class="card">
+                <h2>📁 جميع الملفات</h2>
+                <div class="table-responsive">
+                    <table class="data-table" id="allFilesTable">
+                        <thead>
+                            <tr>
+                                <th>اسم الملف</th>
+                                <th>المالك</th>
+                                <th>النوع</th>
+                                <th>تاريخ الرفع</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="allFilesTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="storage.js"></script>
+    <script src="auth.js"></script>
+    <script src="admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!Auth.isLoggedIn()) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const currentUser = Auth.getCurrentUser();
+            if (currentUser.role !== 'admin') {
+                alert('غير مصرح لك بالدخول إلى هذه الصفحة');
+                window.location.href = 'home.html';
+                return;
+            }
+
+            document.getElementById('userName').textContent = currentUser.name || currentUser.email;
+
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                Auth.logout();
+                window.location.href = 'index.html';
+            });
+
+            AdminPanel.init();
+        });
+    </script>
 </body>
 </html>
