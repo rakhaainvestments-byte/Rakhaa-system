@@ -3,115 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الرئيسية - رخاء</title>
+    <title>رخاء - دخول العاملين</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="logo"><i class="fas fa-gem"></i><span>رخاء</span><span class="logo-sub">للعاملين</span></div>
-            <ul class="nav-menu">
-                <li><a href="home.html" class="active"><i class="fas fa-home"></i> الرئيسية</a></li>
-                <li><a href="files.html"><i class="fas fa-folder-open"></i> الملفات</a></li>
-                <li><a href="admin.html" id="adminLink" style="display:none;"><i class="fas fa-cog"></i> لوحة التحكم</a></li>
-            </ul>
-            <div class="nav-actions">
-                <div class="user-profile">
-                    <div class="user-avatar" id="userAvatar"><i class="fas fa-user"></i></div>
-                    <div class="user-dropdown">
-                        <div class="user-info"><span id="userName"></span><span id="userRole"></span></div>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</a>
-                    </div>
+<body class="auth-page">
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <div class="logo-icon"><i class="fas fa-gem"></i></div>
+                <h1>رخاء</h1>
+                <p>بوابة العاملين</p>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="loginTab">تسجيل الدخول</button>
+                <button class="auth-tab" id="registerTab">طلب حساب</button>
+            </div>
+
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label>البريد الإلكتروني</label>
+                    <div class="input-wrapper"><i class="fas fa-envelope"></i><input type="email" id="loginEmail" placeholder="admin@rakha.sa" required></div>
+                </div>
+                <div class="form-group">
+                    <label>كلمة المرور</label>
+                    <div class="input-wrapper"><i class="fas fa-lock"></i><input type="password" id="loginPassword" placeholder="123456" required></div>
+                </div>
+                <button type="submit" class="btn-gold btn-block"><i class="fas fa-sign-in-alt"></i> دخول</button>
+                <p class="auth-note">خاص بموظفي مكتب رخاء فقط</p>
+            </form>
+
+            <form id="registerForm" class="auth-form" style="display: none;">
+                <div class="form-group">
+                    <label>الاسم الكامل</label>
+                    <div class="input-wrapper"><i class="fas fa-user"></i><input type="text" id="regName" required></div>
+                </div>
+                <div class="form-group">
+                    <label>البريد الوظيفي</label>
+                    <div class="input-wrapper"><i class="fas fa-envelope"></i><input type="email" id="regEmail" required></div>
+                </div>
+                <div class="form-group">
+                    <label>كلمة المرور</label>
+                    <div class="input-wrapper"><i class="fas fa-lock"></i><input type="password" id="regPassword" required minlength="6"></div>
+                </div>
+                <div class="form-group">
+                    <label>تأكيد كلمة المرور</label>
+                    <div class="input-wrapper"><i class="fas fa-lock"></i><input type="password" id="regConfirm" required></div>
+                </div>
+                <button type="submit" class="btn-gold btn-block"><i class="fas fa-paper-plane"></i> إرسال الطلب</button>
+                <p class="auth-note">سيتم مراجعة الطلب من الإدارة</p>
+            </form>
+
+            <div id="authMessage" class="auth-message"></div>
+
+            <div class="auth-footer">
+                <p>حسابات تجريبية:</p>
+                <div class="demo-accounts">
+                    <span><i class="fas fa-user-tie"></i> admin@rakha.sa / 123456</span>
+                    <span><i class="fas fa-user"></i> user1@rakha.sa / 123456</span>
                 </div>
             </div>
         </div>
-    </nav>
+    </div>
 
-    <main class="container">
-        <div class="welcome-card">
-            <h1>مرحباً، <span id="welcomeName"></span></h1>
-            <p>نظام إدارة ملفات مكتب رخاء للتنمية المستدامة</p>
-        </div>
-
-        <div class="quick-stats">
-            <div class="stat-box"><i class="fas fa-globe"></i><h3 id="publicCount">0</h3><p>ملفات عامة</p></div>
-            <div class="stat-box"><i class="fas fa-lock"></i><h3 id="privateCount">0</h3><p>ملفاتي الخاصة</p></div>
-            <div class="stat-box"><i class="fas fa-users"></i><h3 id="usersCount">0</h3><p>موظف نشط</p></div>
-        </div>
-
-        <div class="section-header">
-            <h2>آخر الملفات المرفوعة</h2>
-            <a href="files.html" class="view-all">عرض الكل <i class="fas fa-arrow-left"></i></a>
-        </div>
-        <div class="files-grid" id="recentFilesGrid">جاري التحميل...</div>
-    </main>
-
-    <script src="auth.js"></script>
     <script>
-        const currentUser = checkAuth();
-        if (!currentUser) window.location.href = 'index.html';
-
-        document.addEventListener('DOMContentLoaded', function(){
-            document.getElementById('welcomeName').textContent = currentUser.name;
-            document.getElementById('userName').textContent = currentUser.name;
-            document.getElementById('userRole').textContent = currentUser.role === 'admin' ? 'مدير النظام' : 'موظف';
-            if (currentUser.role === 'admin') document.getElementById('adminLink').style.display = 'block';
-            if (currentUser.picture) {
-                document.getElementById('userAvatar').innerHTML = `<img src="${currentUser.picture}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+        // ========== تهيئة البيانات الأولية ==========
+        function initStorage() {
+            if (!localStorage.getItem('rakha_users')) {
+                const defaultUsers = [
+                    { id: 1, name: 'مدير النظام', email: 'admin@rakha.sa', password: '123456', role: 'admin', status: 'active', createdAt: new Date().toISOString() },
+                    { id: 2, name: 'موظف أول', email: 'user1@rakha.sa', password: '123456', role: 'user', status: 'active', createdAt: new Date().toISOString() }
+                ];
+                localStorage.setItem('rakha_users', JSON.stringify(defaultUsers));
             }
-            loadStats();
-            loadRecentFiles();
+            if (!localStorage.getItem('public_files')) localStorage.setItem('public_files', JSON.stringify([]));
+            if (!localStorage.getItem('private_files')) localStorage.setItem('private_files', JSON.stringify({}));
+        }
+        initStorage();
+
+        // إذا كان المستخدم مسجلاً بالفعل
+        if (localStorage.getItem('rakha_current_user')) window.location.href = 'home.html';
+
+        // ========== التبويبات ==========
+        document.getElementById('loginTab').addEventListener('click', function(){
+            this.classList.add('active');
+            document.getElementById('registerTab').classList.remove('active');
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+        });
+        document.getElementById('registerTab').addEventListener('click', function(){
+            this.classList.add('active');
+            document.getElementById('loginTab').classList.remove('active');
+            document.getElementById('registerForm').style.display = 'block';
+            document.getElementById('loginForm').style.display = 'none';
         });
 
-        function loadStats() {
-            const publicFiles = JSON.parse(localStorage.getItem('public_files') || '[]');
-            const privateData = JSON.parse(localStorage.getItem('private_files') || '{}');
-            const myPrivate = privateData[currentUser.id] || [];
+        function showMessage(msg, type) {
+            const el = document.getElementById('authMessage');
+            el.textContent = msg;
+            el.className = `auth-message ${type}`;
+            setTimeout(() => el.className = 'auth-message', 4000);
+        }
+
+        // ========== تسجيل الدخول ==========
+        document.getElementById('loginForm').addEventListener('submit', function(e){
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = document.getElementById('loginPassword').value;
             const users = JSON.parse(localStorage.getItem('rakha_users') || '[]');
-            const activeUsers = users.filter(u => u.status === 'active').length;
+            const user = users.find(u => u.email === email && u.password === pass);
+            if (!user) return showMessage('بيانات الدخول غير صحيحة', 'error');
+            if (user.status !== 'active') return showMessage('الحساب غير مفعل، راجع الإدارة', 'error');
             
-            document.getElementById('publicCount').textContent = publicFiles.length;
-            document.getElementById('privateCount').textContent = myPrivate.length;
-            document.getElementById('usersCount').textContent = activeUsers;
-        }
+            const sessionUser = { ...user };
+            delete sessionUser.password;
+            localStorage.setItem('rakha_current_user', JSON.stringify(sessionUser));
+            showMessage('تم الدخول بنجاح...', 'success');
+            setTimeout(() => window.location.href = 'home.html', 800);
+        });
 
-        function loadRecentFiles() {
-            const publicFiles = JSON.parse(localStorage.getItem('public_files') || '[]');
-            const privateData = JSON.parse(localStorage.getItem('private_files') || '{}');
-            const myPrivate = privateData[currentUser.id] || [];
+        // ========== طلب حساب ==========
+        document.getElementById('registerForm').addEventListener('submit', function(e){
+            e.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const pass = document.getElementById('regPassword').value;
+            const confirm = document.getElementById('regConfirm').value;
+            if (pass !== confirm) return showMessage('كلمتا المرور غير متطابقتين', 'error');
+            if (pass.length < 6) return showMessage('كلمة المرور 6 أحرف على الأقل', 'error');
             
-            let all = [
-                ...publicFiles.map(f => ({...f, folder: 'public'})),
-                ...myPrivate.map(f => ({...f, folder: 'private'}))
-            ];
-            all.sort((a,b) => new Date(b.uploadDate) - new Date(a.uploadDate));
-            const recent = all.slice(0,4);
-            const grid = document.getElementById('recentFilesGrid');
+            const users = JSON.parse(localStorage.getItem('rakha_users') || '[]');
+            if (users.find(u => u.email === email)) return showMessage('البريد مسجل مسبقاً', 'error');
             
-            if (!recent.length) {
-                grid.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><p>لا توجد ملفات</p></div>';
-                return;
-            }
-            
-            grid.innerHTML = recent.map(f => `
-                <div class="file-card ${f.folder==='public'?'public-file':'private-file'}">
-                    <div class="file-card-header"><i class="fas ${getIcon(f.type)}"></i><span class="badge ${f.folder}">${f.folder==='public'?'عام':'خاص'}</span></div>
-                    <h4>${f.name}</h4><p>${f.description || ''}</p>
-                    <div class="file-meta"><span><i class="fas fa-user"></i> ${f.uploader}</span><span><i class="fas fa-calendar"></i> ${new Date(f.uploadDate).toLocaleDateString('ar-SA')}</span></div>
-                </div>
-            `).join('');
-        }
-
-        function getIcon(type) {
-            if (type?.includes('pdf')) return 'fa-file-pdf';
-            if (type?.includes('excel')||type?.includes('spreadsheet')) return 'fa-file-excel';
-            if (type?.includes('word')||type?.includes('document')) return 'fa-file-word';
-            if (type?.includes('image')) return 'fa-file-image';
-            return 'fa-file';
-        }
+            const newUser = {
+                id: Date.now(),
+                name, email, password: pass,
+                role: 'user',
+                status: 'pending',
+                createdAt: new Date().toISOString()
+            };
+            users.push(newUser);
+            localStorage.setItem('rakha_users', JSON.stringify(users));
+            showMessage('تم تقديم الطلب، بانتظار موافقة الإدارة', 'success');
+            document.getElementById('registerForm').reset();
+            setTimeout(() => document.getElementById('loginTab').click(), 1500);
+        });
     </script>
 </body>
 </html>
