@@ -51,16 +51,10 @@
 
     <script src="auth.js"></script>
     <script>
-        const currentUser = checkAuth();  // من auth.js
+        const currentUser = checkAuth();
         if (!currentUser) window.location.href = 'index.html';
 
         document.addEventListener('DOMContentLoaded', function(){
-            updateUI();
-            loadStats();
-            loadRecentFiles();
-        });
-
-        function updateUI() {
             document.getElementById('welcomeName').textContent = currentUser.name;
             document.getElementById('userName').textContent = currentUser.name;
             document.getElementById('userRole').textContent = currentUser.role === 'admin' ? 'مدير النظام' : 'موظف';
@@ -68,7 +62,9 @@
             if (currentUser.picture) {
                 document.getElementById('userAvatar').innerHTML = `<img src="${currentUser.picture}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
             }
-        }
+            loadStats();
+            loadRecentFiles();
+        });
 
         function loadStats() {
             const publicFiles = JSON.parse(localStorage.getItem('public_files') || '[]');
@@ -101,10 +97,9 @@
             }
             
             grid.innerHTML = recent.map(f => `
-                <div class="file-card">
+                <div class="file-card ${f.folder==='public'?'public-file':'private-file'}">
                     <div class="file-card-header"><i class="fas ${getIcon(f.type)}"></i><span class="badge ${f.folder}">${f.folder==='public'?'عام':'خاص'}</span></div>
-                    <h4>${f.name}</h4>
-                    <p>${f.description || ''}</p>
+                    <h4>${f.name}</h4><p>${f.description || ''}</p>
                     <div class="file-meta"><span><i class="fas fa-user"></i> ${f.uploader}</span><span><i class="fas fa-calendar"></i> ${new Date(f.uploadDate).toLocaleDateString('ar-SA')}</span></div>
                 </div>
             `).join('');
