@@ -68,7 +68,6 @@
                         <label><input type="radio" name="target" value="private"> <span class="folder-label private"><i class="fas fa-lock"></i> خاص (private.json)</span></label>
                     </div>
                 </div>
-                <div class="upload-progress" id="progressContainer" style="display:none;"><div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div><span id="progressText">0%</span></div>
                 <button type="submit" class="btn-gold btn-block">رفع</button>
             </form>
         </div>
@@ -90,7 +89,6 @@
 
         let publicFiles = [], privateFiles = [], currentFilter = 'all', searchTerm = '';
 
-        // تحديث الواجهة
         function updateUI() {
             document.getElementById('userName').textContent = currentUser.name;
             document.getElementById('userRole').textContent = currentUser.role==='admin'?'مدير':'موظف';
@@ -129,7 +127,7 @@
                 return;
             }
             container.innerHTML = files.map(f => `
-                <div class="file-card ${f.folder}-file">
+                <div class="file-card ${f.folder==='public'?'public-file':'private-file'}">
                     <div class="file-card-header"><i class="fas ${getIcon(f.type)}"></i><span class="badge ${f.folder}">${f.folder==='public'?'عام':'خاص'}</span></div>
                     <h4>${f.name}</h4><p>${f.description||''}</p>
                     <div class="file-meta"><span><i class="fas fa-user"></i>${f.uploader}</span><span><i class="fas fa-calendar"></i>${new Date(f.uploadDate).toLocaleDateString('ar-SA')}</span></div>
@@ -152,7 +150,6 @@
             return 'fa-file';
         }
 
-        // الفلترة
         document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', function(){
             document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
             this.classList.add('active');
@@ -165,7 +162,6 @@
             displayFiles();
         }
 
-        // رفع ملف
         function openUploadModal() { document.getElementById('uploadModal').style.display='flex'; }
         function closeUploadModal() { document.getElementById('uploadModal').style.display='none'; document.getElementById('uploadForm').reset(); }
 
@@ -210,7 +206,6 @@
             reader.readAsDataURL(file);
         });
 
-        // معاينة وتنزيل
         function previewFile(folder, id) {
             const file = (folder==='public'? publicFiles : privateFiles).find(f=>f.id===id);
             if (!file) return;
@@ -240,7 +235,6 @@
             a.click();
         }
 
-        // نقل وحذف
         function moveFile(from, id) {
             const sourceArr = from==='public' ? publicFiles : privateFiles;
             const file = sourceArr.find(f=>f.id===id);
@@ -283,7 +277,6 @@
             loadFiles();
         }
 
-        // تهيئة
         document.addEventListener('DOMContentLoaded', ()=>{
             updateUI();
             loadFiles();
