@@ -1,195 +1,150 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>رخاء - حاسبة ضريبة القيمة المضافة</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رخاء - حاسبة ضريبة القيمة المضافة</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
-  <div class="app-container">
-    <div class="sidebar">
-      <div class="logo">
-        <i class="fas fa-leaf" style="color: #C9A84C; font-size: 2rem;"></i>
-        <h2>رخاء</h2>
-        <small>للتنمية المستدامة</small>
-      </div>
-      <div class="nav">
-        <a href="home.html" class="active"><i class="fas fa-calculator"></i> حاسبة الضريبة</a>
-        <a href="files.html"><i class="fas fa-folder-open"></i> الملفات</a>
-        <a href="admin.html" id="adminNavLink" style="display: none;"><i class="fas fa-user-shield"></i> الإدارة</a>
-      </div>
-      <div class="user-info">
-        <i class="fas fa-user-circle"></i>
-        <div class="user-details">
-          <div class="user-name" id="sidebarUserName">...</div>
-          <div class="user-role" id="sidebarUserRole">...</div>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <span class="brand-icon">🌿</span>
+                <span>رخاء للتنمية المستدامة</span>
+            </div>
+            <div class="nav-menu">
+                <a href="home.html" class="nav-link active">الرئيسية</a>
+                <a href="files.html" class="nav-link">الملفات</a>
+                <a href="admin.html" class="nav-link admin-only" style="display:none;">المشرف</a>
+                <div class="user-menu">
+                    <span id="userName" class="user-name"></span>
+                    <button id="logoutBtn" class="btn btn-outline btn-sm">تسجيل الخروج</button>
+                </div>
+            </div>
         </div>
-        <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
-      </div>
-    </div>
+    </nav>
 
-    <div class="main-content">
-      <div class="page-header">
-        <h1><i class="fas fa-calculator" style="color: #C9A84C; margin-left: 10px;"></i>حاسبة ضريبة القيمة المضافة</h1>
-      </div>
-
-      <div class="card">
-        <h3 class="card-title">رفع ملف Excel</h3>
-        <div class="upload-section" id="dropZone">
-          <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
-          <i class="fas fa-cloud-upload-alt upload-icon"></i>
-          <div class="upload-text">اسحب ملف Excel أو اضغط للرفع</div>
-          <div class="upload-note" id="uploadNote">ملفات xlsx, xls</div>
+    <main class="container">
+        <div class="page-header">
+            <h1>حاسبة ضريبة القيمة المضافة</h1>
+            <p>قم برفع ملف Excel لتحليل بيانات ضريبة القيمة المضافة وحساب المستحقات</p>
         </div>
-        <div style="margin-top: 15px; display: flex; gap: 10px;">
-          <button class="btn-gold" onclick="document.getElementById('fileInput').click()"><i class="fas fa-folder-open"></i> اختيار ملف</button>
-          <button class="btn-outline" onclick="saveCurrentExcelToStorage()"><i class="fas fa-save"></i> حفظ في الملفات</button>
+
+        <!-- منطقة رفع الملف -->
+        <div class="upload-section card">
+            <div class="upload-area" id="dropZone">
+                <div class="upload-icon">📊</div>
+                <p class="upload-text">اسحب وأفلت ملف Excel هنا</p>
+                <p class="upload-note">أو</p>
+                <label for="fileInput" class="btn btn-primary">اختر ملف</label>
+                <input type="file" id="fileInput" accept=".xlsx,.xls" hidden>
+                <p class="upload-hint">الصيغ المدعومة: .xlsx, .xls</p>
+            </div>
         </div>
-      </div>
 
-      <div class="card">
-        <h3 class="card-title">بيانات الفواتير</h3>
-        <div class="table-responsive">
-          <table>
-            <thead><tr><th>#</th><th>المسدد</th><th>نسبة الضريبة</th><th>قيمة الضريبة</th><th>قيمة التعامل</th><th>حالة الفاتورة</th><th>اتجاه الفاتورة</th></tr></thead>
-            <tbody id="tableBody"></tbody>
-          </table>
+        <!-- بطاقات ملخص القيم -->
+        <div class="summary-cards">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">📥</span>
+                    <h3>إجمالي الضريبة الواردة</h3>
+                </div>
+                <div class="card-value" id="totalInput">0.00</div>
+                <div class="card-label">ريال سعودي</div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">📤</span>
+                    <h3>إجمالي الضريبة الصادرة</h3>
+                </div>
+                <div class="card-value" id="totalOutput">0.00</div>
+                <div class="card-label">ريال سعودي</div>
+            </div>
+            <div class="card highlight">
+                <div class="card-header">
+                    <span class="card-icon">⚖️</span>
+                    <h3>صافي ضريبة القيمة المضافة</h3>
+                </div>
+                <div class="card-value" id="netVAT">0.00</div>
+                <div class="card-label">ريال سعودي</div>
+            </div>
         </div>
-      </div>
 
-      <div class="card summary-box">
-        <h3 class="card-title">ملخص ضريبة القيمة المضافة</h3>
-        <div class="vat-summary">
-          <div class="vat-item"><div class="vat-label">إجمالي ضريبة المشتريات</div><div class="vat-value" id="totalInput">0.00</div></div>
-          <div class="vat-item"><div class="vat-label">إجمالي ضريبة المبيعات</div><div class="vat-value" id="totalOutput">0.00</div></div>
-          <div class="vat-item"><div class="vat-label">صافي الضريبة</div><div class="vat-value" id="netVAT">0.00</div></div>
+        <!-- المدخلات اليدوية -->
+        <div class="manual-inputs card">
+            <h3>تعديل القيم يدوياً</h3>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="manualOpening">رصيد أول المدة</label>
+                    <input type="number" id="manualOpening" step="0.01" value="0" class="form-control">
+                </div>
+                <div class="input-group">
+                    <label for="manualPayments">السدادات خلال الفترة</label>
+                    <input type="number" id="manualPayments" step="0.01" value="0" class="form-control">
+                </div>
+                <div class="input-group">
+                    <button class="btn btn-secondary" id="recalculateBtn">إعادة الحساب</button>
+                </div>
+            </div>
         </div>
-        <div style="display: grid; grid-template-columns: repeat(3,1fr); gap: 15px;">
-          <div><label>رصيد أول المدة</label><input type="number" id="manualOpening" class="form-control" value="0" step="0.01"></div>
-          <div><label>المسدد خلال الفترة</label><input type="number" id="manualPayments" class="form-control" value="0" step="0.01"></div>
-          <div><label>الرصيد النهائي</label><div id="closingBalance" style="font-size: 2rem; font-weight: bold;">0.00</div></div>
+
+        <!-- جدول التفاصيل -->
+        <div class="table-container card">
+            <h3>تفاصيل الفواتير</h3>
+            <div class="table-responsive">
+                <table class="data-table" id="invoiceTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>المسدد خلال العام</th>
+                            <th>نسبة الضريبة %</th>
+                            <th>قيمة الضريبة</th>
+                            <th>قيمة التعامل</th>
+                            <th>حالة الفاتورة</th>
+                            <th>اتجاه الفاتورة</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- سيتم ملؤه ديناميكياً -->
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <button class="btn-gold" onclick="recalculateVAT()"><i class="fas fa-sync-alt"></i> تحديث الحساب</button>
-      </div>
-    </div>
-  </div>
 
-  <script src="auth.js"></script>
-  <script src="files-manager.js"></script>
-  <script>
-    let totalInput = 0, totalOutput = 0, openingValue = 0, paymentsValue = 0;
-    let currentExcelFile = null, currentWorkbook = null;
+        <!-- أزرار الحفظ والتنزيل -->
+        <div class="action-buttons">
+            <button class="btn btn-success" id="saveExcelBtn">💾 حفظ الملف الحالي</button>
+            <button class="btn btn-info" id="downloadExcelBtn">⬇️ تنزيل ملف Excel معدل</button>
+        </div>
+    </main>
 
-    document.addEventListener('DOMContentLoaded', function() {
-      requireAuth();
-      updateSidebarUser();
-      recalculateVAT();
+    <script src="storage.js"></script>
+    <script src="auth.js"></script>
+    <script src="vat.js"></script>
+    <script>
+        // تهيئة الصفحة الرئيسية
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!Auth.isLoggedIn()) {
+                window.location.href = 'index.html';
+                return;
+            }
 
-      const dropZone = document.getElementById('dropZone');
-      dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.borderColor = '#0B1E33'; });
-      dropZone.addEventListener('dragleave', () => dropZone.style.borderColor = '#C9A84C');
-      dropZone.addEventListener('drop', e => {
-        e.preventDefault();
-        dropZone.style.borderColor = '#C9A84C';
-        const file = e.dataTransfer.files[0];
-        if (file && file.name.match(/\.(xlsx|xls)$/i)) {
-          document.getElementById('fileInput').files = e.dataTransfer.files;
-          document.getElementById('fileInput').dispatchEvent(new Event('change'));
-        } else alert('يرجى رفع ملف Excel فقط');
-      });
+            const currentUser = Auth.getCurrentUser();
+            document.getElementById('userName').textContent = currentUser.name || currentUser.email;
 
-      document.getElementById('fileInput').addEventListener('change', handleFileSelect);
-    });
+            if (currentUser.role === 'admin') {
+                document.querySelector('.admin-only').style.display = 'block';
+            }
 
-    function handleFileSelect(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      currentExcelFile = file;
-      const reader = new FileReader();
-      reader.onload = ev => {
-        const data = new Uint8Array(ev.target.result);
-        currentWorkbook = XLSX.read(data, {type: 'array'});
-        processExcel(currentWorkbook, file.name);
-      };
-      reader.readAsArrayBuffer(file);
-    }
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                Auth.logout();
+                window.location.href = 'index.html';
+            });
 
-    function processExcel(workbook, fileName) {
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(sheet);
-      const tbody = document.getElementById('tableBody');
-      tbody.innerHTML = '';
-      totalInput = 0; totalOutput = 0;
-      document.querySelector('.upload-text').textContent = `تم رفع: ${fileName}`;
-      document.querySelector('.upload-icon').innerHTML = '<i class="fas fa-check-circle" style="color: green;"></i>';
-      document.querySelector('.upload-note').textContent = `${rows.length} سجل`;
-
-      rows.forEach((row, idx) => {
-        const payments = findValue(row, ['المسدد خلال العام', 'Payments']);
-        const vatPercent = findValue(row, ['ضريبة القيمة المضافة (%)', 'VAT Percentage']);
-        const vatValue = findValue(row, ['ضريبة القيمة المضافة (قيمة)', 'VAT Value']);
-        const transactionValue = findValue(row, ['قيمة التعامل قبل ضريبة القيمة المضافة', 'Transaction Value']);
-        const invoiceStatus = findValue(row, ['حالة الفاتورة', 'Invoice Status']);
-        const invoiceDirection = findValue(row, ['اتجاه الفاتورة', 'Invoice Direction']);
-
-        const vatNum = parseFloat(vatValue) || 0;
-        if (invoiceDirection && invoiceDirection.toString().includes('مستلم')) totalInput += vatNum;
-        else if (invoiceDirection && invoiceDirection.toString().includes('صادر')) totalOutput += vatNum;
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${idx+1}</td><td>${payments ? parseFloat(payments).toFixed(2) : '0.00'}</td><td>${vatPercent ? parseFloat(vatPercent).toFixed(2)+'%' : '0%'}</td><td>${vatNum.toFixed(2)}</td><td>${transactionValue ? parseFloat(transactionValue).toFixed(2) : '0.00'}</td><td>${invoiceStatus || '-'}</td><td>${invoiceDirection || '-'}</td>`;
-        tbody.appendChild(tr);
-      });
-      detectOpeningAndPayments(rows);
-      recalculateVAT();
-    }
-
-    function findValue(row, keys) { for (let k of keys) if (row[k] !== undefined) return row[k]; return null; }
-    function detectOpeningAndPayments(rows) {
-      if (!rows.length) return;
-      const r = rows[0];
-      for (let k in r) {
-        if (k.includes('رصيد') && k.includes('المدة')) openingValue = parseFloat(r[k]) || 0;
-        if (k.includes('سداد') || k.includes('سدادات')) paymentsValue = parseFloat(r[k]) || 0;
-      }
-      document.getElementById('manualOpening').value = openingValue;
-      document.getElementById('manualPayments').value = paymentsValue;
-    }
-    function recalculateVAT() {
-      openingValue = parseFloat(document.getElementById('manualOpening').value) || 0;
-      paymentsValue = parseFloat(document.getElementById('manualPayments').value) || 0;
-      const closing = openingValue - totalInput + totalOutput - paymentsValue;
-      document.getElementById('totalInput').textContent = totalInput.toFixed(2);
-      document.getElementById('totalOutput').textContent = totalOutput.toFixed(2);
-      document.getElementById('netVAT').textContent = (totalOutput - totalInput).toFixed(2);
-      const closingEl = document.getElementById('closingBalance');
-      closingEl.textContent = closing.toFixed(2);
-      closingEl.style.color = closing > 0 ? '#d32f2f' : closing < 0 ? '#388e3c' : '#C9A84C';
-    }
-    function saveCurrentExcelToStorage() {
-      if (!currentExcelFile) return alert('لا يوجد ملف مرفوع');
-      const user = getCurrentUser();
-      const reader = new FileReader();
-      reader.onload = e => {
-        const base64 = e.target.result.split(',')[1];
-        const isPublic = confirm('هل تريد جعل الملف عاماً؟');
-        addFile({
-          id: Date.now() + '-' + Math.random().toString(36),
-          name: currentExcelFile.name,
-          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          size: currentExcelFile.size,
-          uploadDate: new Date().toISOString(),
-          owner: user.email,
-          isPublic: isPublic,
-          data: base64
+            VATCalculator.init();
         });
-        alert('تم حفظ الملف');
-      };
-      reader.readAsDataURL(currentExcelFile);
-    }
-  </script>
+    </script>
 </body>
 </html>
