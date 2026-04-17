@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAX PRO - تسجيل الدخول</title>
+    <!-- الخطوط العربية -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tajawal', 'Cairo', sans-serif;
+            background: linear-gradient(145deg, #0A1929 0%, #1A2F4A 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* زخرفة ذهبية في الخلفية */
+        body::before {
+            content: "";
+            position: absolute;
+            top: -50px;
+            left: -50px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        body::after {
+            content: "";
+            position: absolute;
+            bottom: -50px;
+            right: -50px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 480px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 32px;
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(212, 175, 55, 0.2);
+            padding: 2.5rem 2rem;
+            position: relative;
+            z-index: 10;
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .login-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 35px 60px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(212, 175, 55, 0.4);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: #0A1929;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #0A1929 0%, #1A2F4A 80%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo span {
+            color: #D4AF37;
+            font-weight: 700;
+            background: none;
+            -webkit-background-clip: unset;
+            background-clip: unset;
+            color: #D4AF37;
+        }
+
+        .logo p {
+            color: #5C6B7A;
+            font-size: 1rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.8rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: #0A1929;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group label i {
+            color: #D4AF37;
+            font-style: normal;
+            font-size: 1.2rem;
+        }
+
+        .input-group input {
+            padding: 0.9rem 1.2rem;
+            font-size: 1rem;
+            font-family: inherit;
+            border: 2px solid #E2E8F0;
+            border-radius: 16px;
+            background: white;
+            transition: all 0.2s;
+            outline: none;
+            color: #0A1929;
+            font-weight: 500;
+        }
+
+        .input-group input:focus {
+            border-color: #D4AF37;
+            box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15);
+        }
+
+        .input-group input::placeholder {
+            color: #9AA6B2;
+            font-weight: 400;
+        }
+
+        .login-btn {
+            background: linear-gradient(145deg, #D4AF37 0%, #B4943A 100%);
+            color: #0A1929;
+            border: none;
+            padding: 1rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            font-family: inherit;
+            border-radius: 40px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+            transition: all 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            letter-spacing: 0.5px;
+            margin-top: 1rem;
+        }
+
+        .login-btn:hover {
+            background: linear-gradient(145deg, #E5C04E 0%, #C4A44A 100%);
+            transform: scale(1.02);
+            box-shadow: 0 12px 28px rgba(212, 175, 55, 0.5);
+        }
+
+        .login-btn:active {
+            transform: scale(0.98);
+        }
+
+        .error-message {
+            color: #D32F2F;
+            font-size: 0.9rem;
+            text-align: center;
+            min-height: 24px;
+            font-weight: 500;
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 2rem;
+            color: #7A8B9B;
+            font-size: 0.85rem;
+            border-top: 1px dashed rgba(212, 175, 55, 0.3);
+            padding-top: 1.5rem;
+        }
+
+        .gold-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #D4AF37;
+            border-radius: 50%;
+            margin: 0 6px;
+            box-shadow: 0 0 8px #D4AF37;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>TAX <span>PRO</span></h1>
+            <p>نظام إدارة ضريبة القيمة المضافة</p>
+            <div style="margin-top: 12px;">
+                <span class="gold-dot"></span>
+                <span class="gold-dot" style="opacity:0.7;"></span>
+                <span class="gold-dot" style="opacity:0.4;"></span>
+            </div>
+        </div>
+
+        <form class="login-form" id="loginForm">
+            <div class="input-group">
+                <label><i>👤</i> اسم المستخدم</label>
+                <input type="text" id="username" placeholder="أدخل اسم المستخدم" value="" autocomplete="off" required>
+            </div>
+            <div class="input-group">
+                <label><i>🔒</i> كلمة المرور</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+            <div class="error-message" id="errorMsg"></div>
+            <button type="submit" class="login-btn">دخول</button>
+        </form>
+
+        <div class="footer-note">
+            <span>للاستخدام الداخلي فقط</span><br>
+            <span style="color:#D4AF37; font-weight:600;">موظفو المكتب</span>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // إذا كان المستخدم مسجلاً بالفعل، التوجيه مباشرة إلى home.html
+            if (localStorage.getItem('taxProAuth') === 'true') {
+                window.location.href = 'home.html';
+                return;
+            }
+
+            const loginForm = document.getElementById('loginForm');
+            const errorMsg = document.getElementById('errorMsg');
+
+            // بيانات الدخول الثابتة (للموظفين فقط)
+            const VALID_USERNAME = 'admin';
+            const VALID_PASSWORD = '123456';
+
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value;
+
+                if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+                    // تخزين حالة تسجيل الدخول
+                    localStorage.setItem('taxProAuth', 'true');
+                    localStorage.setItem('taxProUser', username);
+                    // التوجيه إلى الصفحة الرئيسية
+                    window.location.href = 'home.html';
+                } else {
+                    errorMsg.textContent = '❌ اسم المستخدم أو كلمة المرور غير صحيحة';
+                    document.getElementById('password').value = '';
+                }
+            });
+
+            // إزالة رسالة الخطأ عند الكتابة
+            document.getElementById('username').addEventListener('input', () => errorMsg.textContent = '');
+            document.getElementById('password').addEventListener('input', () => errorMsg.textContent = '');
+        })();
+    </script>
+</body>
+</html>
