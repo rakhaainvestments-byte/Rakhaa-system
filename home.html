@@ -1,155 +1,195 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>رخاء - دخول العاملين</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>رخاء - حاسبة ضريبة القيمة المضافة</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
-<body class="auth-page">
-    <div class="auth-wrapper">
-        <div class="auth-card">
-            <div class="auth-logo">
-                <div class="logo-icon"><i class="fas fa-gem"></i></div>
-                <h1>رخاء</h1>
-                <p>بوابة العاملين</p>
-            </div>
-
-            <div class="auth-tabs">
-                <button class="auth-tab active" id="loginTab">تسجيل الدخول</button>
-                <button class="auth-tab" id="registerTab">طلب حساب</button>
-            </div>
-
-            <form id="loginForm" class="auth-form">
-                <div class="form-group">
-                    <label>البريد الإلكتروني</label>
-                    <div class="input-wrapper"><i class="fas fa-envelope"></i><input type="email" id="loginEmail" placeholder="admin@rakha.sa" required></div>
-                </div>
-                <div class="form-group">
-                    <label>كلمة المرور</label>
-                    <div class="input-wrapper"><i class="fas fa-lock"></i><input type="password" id="loginPassword" placeholder="123456" required></div>
-                </div>
-                <button type="submit" class="btn-gold btn-block"><i class="fas fa-sign-in-alt"></i> دخول</button>
-                <p class="auth-note">خاص بموظفي مكتب رخاء فقط</p>
-            </form>
-
-            <form id="registerForm" class="auth-form" style="display: none;">
-                <div class="form-group">
-                    <label>الاسم الكامل</label>
-                    <div class="input-wrapper"><i class="fas fa-user"></i><input type="text" id="regName" required></div>
-                </div>
-                <div class="form-group">
-                    <label>البريد الوظيفي</label>
-                    <div class="input-wrapper"><i class="fas fa-envelope"></i><input type="email" id="regEmail" required></div>
-                </div>
-                <div class="form-group">
-                    <label>كلمة المرور</label>
-                    <div class="input-wrapper"><i class="fas fa-lock"></i><input type="password" id="regPassword" required minlength="6"></div>
-                </div>
-                <div class="form-group">
-                    <label>تأكيد كلمة المرور</label>
-                    <div class="input-wrapper"><i class="fas fa-lock"></i><input type="password" id="regConfirm" required></div>
-                </div>
-                <button type="submit" class="btn-gold btn-block"><i class="fas fa-paper-plane"></i> إرسال الطلب</button>
-                <p class="auth-note">سيتم مراجعة الطلب من الإدارة</p>
-            </form>
-
-            <div id="authMessage" class="auth-message"></div>
-
-            <div class="auth-footer">
-                <p>حسابات تجريبية:</p>
-                <div class="demo-accounts">
-                    <span><i class="fas fa-user-tie"></i> admin@rakha.sa / 123456</span>
-                    <span><i class="fas fa-user"></i> user1@rakha.sa / 123456</span>
-                </div>
-            </div>
+<body>
+  <div class="app-container">
+    <div class="sidebar">
+      <div class="logo">
+        <i class="fas fa-leaf" style="color: #C9A84C; font-size: 2rem;"></i>
+        <h2>رخاء</h2>
+        <small>للتنمية المستدامة</small>
+      </div>
+      <div class="nav">
+        <a href="home.html" class="active"><i class="fas fa-calculator"></i> حاسبة الضريبة</a>
+        <a href="files.html"><i class="fas fa-folder-open"></i> الملفات</a>
+        <a href="admin.html" id="adminNavLink" style="display: none;"><i class="fas fa-user-shield"></i> الإدارة</a>
+      </div>
+      <div class="user-info">
+        <i class="fas fa-user-circle"></i>
+        <div class="user-details">
+          <div class="user-name" id="sidebarUserName">...</div>
+          <div class="user-role" id="sidebarUserRole">...</div>
         </div>
+        <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
+      </div>
     </div>
 
-    <script>
-        // ========== تهيئة البيانات الأولية ==========
-        function initStorage() {
-            if (!localStorage.getItem('rakha_users')) {
-                const defaultUsers = [
-                    { id: 1, name: 'مدير النظام', email: 'admin@rakha.sa', password: '123456', role: 'admin', status: 'active', createdAt: new Date().toISOString() },
-                    { id: 2, name: 'موظف أول', email: 'user1@rakha.sa', password: '123456', role: 'user', status: 'active', createdAt: new Date().toISOString() }
-                ];
-                localStorage.setItem('rakha_users', JSON.stringify(defaultUsers));
-            }
-            if (!localStorage.getItem('public_files')) localStorage.setItem('public_files', JSON.stringify([]));
-            if (!localStorage.getItem('private_files')) localStorage.setItem('private_files', JSON.stringify({}));
-        }
-        initStorage();
+    <div class="main-content">
+      <div class="page-header">
+        <h1><i class="fas fa-calculator" style="color: #C9A84C; margin-left: 10px;"></i>حاسبة ضريبة القيمة المضافة</h1>
+      </div>
 
-        // إذا كان المستخدم مسجلاً بالفعل
-        if (localStorage.getItem('rakha_current_user')) window.location.href = 'home.html';
+      <div class="card">
+        <h3 class="card-title">رفع ملف Excel</h3>
+        <div class="upload-section" id="dropZone">
+          <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
+          <i class="fas fa-cloud-upload-alt upload-icon"></i>
+          <div class="upload-text">اسحب ملف Excel أو اضغط للرفع</div>
+          <div class="upload-note" id="uploadNote">ملفات xlsx, xls</div>
+        </div>
+        <div style="margin-top: 15px; display: flex; gap: 10px;">
+          <button class="btn-gold" onclick="document.getElementById('fileInput').click()"><i class="fas fa-folder-open"></i> اختيار ملف</button>
+          <button class="btn-outline" onclick="saveCurrentExcelToStorage()"><i class="fas fa-save"></i> حفظ في الملفات</button>
+        </div>
+      </div>
 
-        // ========== التبويبات ==========
-        document.getElementById('loginTab').addEventListener('click', function(){
-            this.classList.add('active');
-            document.getElementById('registerTab').classList.remove('active');
-            document.getElementById('loginForm').style.display = 'block';
-            document.getElementById('registerForm').style.display = 'none';
+      <div class="card">
+        <h3 class="card-title">بيانات الفواتير</h3>
+        <div class="table-responsive">
+          <table>
+            <thead><tr><th>#</th><th>المسدد</th><th>نسبة الضريبة</th><th>قيمة الضريبة</th><th>قيمة التعامل</th><th>حالة الفاتورة</th><th>اتجاه الفاتورة</th></tr></thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card summary-box">
+        <h3 class="card-title">ملخص ضريبة القيمة المضافة</h3>
+        <div class="vat-summary">
+          <div class="vat-item"><div class="vat-label">إجمالي ضريبة المشتريات</div><div class="vat-value" id="totalInput">0.00</div></div>
+          <div class="vat-item"><div class="vat-label">إجمالي ضريبة المبيعات</div><div class="vat-value" id="totalOutput">0.00</div></div>
+          <div class="vat-item"><div class="vat-label">صافي الضريبة</div><div class="vat-value" id="netVAT">0.00</div></div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(3,1fr); gap: 15px;">
+          <div><label>رصيد أول المدة</label><input type="number" id="manualOpening" class="form-control" value="0" step="0.01"></div>
+          <div><label>المسدد خلال الفترة</label><input type="number" id="manualPayments" class="form-control" value="0" step="0.01"></div>
+          <div><label>الرصيد النهائي</label><div id="closingBalance" style="font-size: 2rem; font-weight: bold;">0.00</div></div>
+        </div>
+        <button class="btn-gold" onclick="recalculateVAT()"><i class="fas fa-sync-alt"></i> تحديث الحساب</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+  <script src="files-manager.js"></script>
+  <script>
+    let totalInput = 0, totalOutput = 0, openingValue = 0, paymentsValue = 0;
+    let currentExcelFile = null, currentWorkbook = null;
+
+    document.addEventListener('DOMContentLoaded', function() {
+      requireAuth();
+      updateSidebarUser();
+      recalculateVAT();
+
+      const dropZone = document.getElementById('dropZone');
+      dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.borderColor = '#0B1E33'; });
+      dropZone.addEventListener('dragleave', () => dropZone.style.borderColor = '#C9A84C');
+      dropZone.addEventListener('drop', e => {
+        e.preventDefault();
+        dropZone.style.borderColor = '#C9A84C';
+        const file = e.dataTransfer.files[0];
+        if (file && file.name.match(/\.(xlsx|xls)$/i)) {
+          document.getElementById('fileInput').files = e.dataTransfer.files;
+          document.getElementById('fileInput').dispatchEvent(new Event('change'));
+        } else alert('يرجى رفع ملف Excel فقط');
+      });
+
+      document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+    });
+
+    function handleFileSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      currentExcelFile = file;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const data = new Uint8Array(ev.target.result);
+        currentWorkbook = XLSX.read(data, {type: 'array'});
+        processExcel(currentWorkbook, file.name);
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function processExcel(workbook, fileName) {
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(sheet);
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+      totalInput = 0; totalOutput = 0;
+      document.querySelector('.upload-text').textContent = `تم رفع: ${fileName}`;
+      document.querySelector('.upload-icon').innerHTML = '<i class="fas fa-check-circle" style="color: green;"></i>';
+      document.querySelector('.upload-note').textContent = `${rows.length} سجل`;
+
+      rows.forEach((row, idx) => {
+        const payments = findValue(row, ['المسدد خلال العام', 'Payments']);
+        const vatPercent = findValue(row, ['ضريبة القيمة المضافة (%)', 'VAT Percentage']);
+        const vatValue = findValue(row, ['ضريبة القيمة المضافة (قيمة)', 'VAT Value']);
+        const transactionValue = findValue(row, ['قيمة التعامل قبل ضريبة القيمة المضافة', 'Transaction Value']);
+        const invoiceStatus = findValue(row, ['حالة الفاتورة', 'Invoice Status']);
+        const invoiceDirection = findValue(row, ['اتجاه الفاتورة', 'Invoice Direction']);
+
+        const vatNum = parseFloat(vatValue) || 0;
+        if (invoiceDirection && invoiceDirection.toString().includes('مستلم')) totalInput += vatNum;
+        else if (invoiceDirection && invoiceDirection.toString().includes('صادر')) totalOutput += vatNum;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${idx+1}</td><td>${payments ? parseFloat(payments).toFixed(2) : '0.00'}</td><td>${vatPercent ? parseFloat(vatPercent).toFixed(2)+'%' : '0%'}</td><td>${vatNum.toFixed(2)}</td><td>${transactionValue ? parseFloat(transactionValue).toFixed(2) : '0.00'}</td><td>${invoiceStatus || '-'}</td><td>${invoiceDirection || '-'}</td>`;
+        tbody.appendChild(tr);
+      });
+      detectOpeningAndPayments(rows);
+      recalculateVAT();
+    }
+
+    function findValue(row, keys) { for (let k of keys) if (row[k] !== undefined) return row[k]; return null; }
+    function detectOpeningAndPayments(rows) {
+      if (!rows.length) return;
+      const r = rows[0];
+      for (let k in r) {
+        if (k.includes('رصيد') && k.includes('المدة')) openingValue = parseFloat(r[k]) || 0;
+        if (k.includes('سداد') || k.includes('سدادات')) paymentsValue = parseFloat(r[k]) || 0;
+      }
+      document.getElementById('manualOpening').value = openingValue;
+      document.getElementById('manualPayments').value = paymentsValue;
+    }
+    function recalculateVAT() {
+      openingValue = parseFloat(document.getElementById('manualOpening').value) || 0;
+      paymentsValue = parseFloat(document.getElementById('manualPayments').value) || 0;
+      const closing = openingValue - totalInput + totalOutput - paymentsValue;
+      document.getElementById('totalInput').textContent = totalInput.toFixed(2);
+      document.getElementById('totalOutput').textContent = totalOutput.toFixed(2);
+      document.getElementById('netVAT').textContent = (totalOutput - totalInput).toFixed(2);
+      const closingEl = document.getElementById('closingBalance');
+      closingEl.textContent = closing.toFixed(2);
+      closingEl.style.color = closing > 0 ? '#d32f2f' : closing < 0 ? '#388e3c' : '#C9A84C';
+    }
+    function saveCurrentExcelToStorage() {
+      if (!currentExcelFile) return alert('لا يوجد ملف مرفوع');
+      const user = getCurrentUser();
+      const reader = new FileReader();
+      reader.onload = e => {
+        const base64 = e.target.result.split(',')[1];
+        const isPublic = confirm('هل تريد جعل الملف عاماً؟');
+        addFile({
+          id: Date.now() + '-' + Math.random().toString(36),
+          name: currentExcelFile.name,
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          size: currentExcelFile.size,
+          uploadDate: new Date().toISOString(),
+          owner: user.email,
+          isPublic: isPublic,
+          data: base64
         });
-        document.getElementById('registerTab').addEventListener('click', function(){
-            this.classList.add('active');
-            document.getElementById('loginTab').classList.remove('active');
-            document.getElementById('registerForm').style.display = 'block';
-            document.getElementById('loginForm').style.display = 'none';
-        });
-
-        function showMessage(msg, type) {
-            const el = document.getElementById('authMessage');
-            el.textContent = msg;
-            el.className = `auth-message ${type}`;
-            setTimeout(() => el.className = 'auth-message', 4000);
-        }
-
-        // ========== تسجيل الدخول ==========
-        document.getElementById('loginForm').addEventListener('submit', function(e){
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value.trim();
-            const pass = document.getElementById('loginPassword').value;
-            const users = JSON.parse(localStorage.getItem('rakha_users') || '[]');
-            const user = users.find(u => u.email === email && u.password === pass);
-            if (!user) return showMessage('بيانات الدخول غير صحيحة', 'error');
-            if (user.status !== 'active') return showMessage('الحساب غير مفعل، راجع الإدارة', 'error');
-            
-            const sessionUser = { ...user };
-            delete sessionUser.password;
-            localStorage.setItem('rakha_current_user', JSON.stringify(sessionUser));
-            showMessage('تم الدخول بنجاح...', 'success');
-            setTimeout(() => window.location.href = 'home.html', 800);
-        });
-
-        // ========== طلب حساب ==========
-        document.getElementById('registerForm').addEventListener('submit', function(e){
-            e.preventDefault();
-            const name = document.getElementById('regName').value.trim();
-            const email = document.getElementById('regEmail').value.trim();
-            const pass = document.getElementById('regPassword').value;
-            const confirm = document.getElementById('regConfirm').value;
-            if (pass !== confirm) return showMessage('كلمتا المرور غير متطابقتين', 'error');
-            if (pass.length < 6) return showMessage('كلمة المرور 6 أحرف على الأقل', 'error');
-            
-            const users = JSON.parse(localStorage.getItem('rakha_users') || '[]');
-            if (users.find(u => u.email === email)) return showMessage('البريد مسجل مسبقاً', 'error');
-            
-            const newUser = {
-                id: Date.now(),
-                name, email, password: pass,
-                role: 'user',
-                status: 'pending',
-                createdAt: new Date().toISOString()
-            };
-            users.push(newUser);
-            localStorage.setItem('rakha_users', JSON.stringify(users));
-            showMessage('تم تقديم الطلب، بانتظار موافقة الإدارة', 'success');
-            document.getElementById('registerForm').reset();
-            setTimeout(() => document.getElementById('loginTab').click(), 1500);
-        });
-    </script>
+        alert('تم حفظ الملف');
+      };
+      reader.readAsDataURL(currentExcelFile);
+    }
+  </script>
 </body>
 </html>
