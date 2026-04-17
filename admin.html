@@ -1,157 +1,79 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم - رخاء</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>رخاء - لوحة الإدارة</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="logo"><i class="fas fa-gem"></i><span>رخاء</span><span class="logo-sub">للعاملين</span></div>
-            <ul class="nav-menu">
-                <li><a href="home.html"><i class="fas fa-home"></i> الرئيسية</a></li>
-                <li><a href="files.html"><i class="fas fa-folder-open"></i> الملفات</a></li>
-                <li><a href="admin.html" class="active"><i class="fas fa-cog"></i> لوحة التحكم</a></li>
-            </ul>
-            <div class="nav-actions">
-                <div class="user-profile">
-                    <div class="user-avatar" id="userAvatar"><i class="fas fa-user"></i></div>
-                    <div class="user-dropdown">
-                        <div class="user-info"><span id="userName"></span><span>مدير النظام</span></div>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <main class="container">
-        <h1><i class="fas fa-cog gold-text"></i> لوحة التحكم</h1>
-        <div class="admin-tabs">
-            <button class="tab-btn active" data-tab="users">المستخدمين</button>
-            <button class="tab-btn" data-tab="files">الملفات</button>
-            <button class="tab-btn" data-tab="pending">طلبات الانضمام</button>
-        </div>
-
-        <div id="tab-users" class="tab-content active">
-            <table class="data-table">
-                <thead><tr><th>الاسم</th><th>البريد</th><th>الدور</th><th>الحالة</th><th>إجراءات</th></tr></thead>
-                <tbody id="usersTable"></tbody>
-            </table>
-        </div>
-
-        <div id="tab-files" class="tab-content">
-            <div class="stats-grid">
-                <div class="stat-box"><i class="fas fa-globe"></i><h3 id="totalPublic">0</h3><p>ملفات عامة</p></div>
-                <div class="stat-box"><i class="fas fa-lock"></i><h3 id="totalPrivate">0</h3><p>ملفات خاصة</p></div>
-            </div>
-            <table class="data-table">
-                <thead><tr><th>الملف</th><th>الرافع</th><th>النوع</th><th>تاريخ</th><th>حذف</th></tr></thead>
-                <tbody id="filesTable"></tbody>
-            </table>
-        </div>
-
-        <div id="tab-pending" class="tab-content">
-            <table class="data-table">
-                <thead><tr><th>الاسم</th><th>البريد</th><th>تاريخ الطلب</th><th>إجراءات</th></tr></thead>
-                <tbody id="pendingTable"></tbody>
-            </table>
-        </div>
-    </main>
-
-    <script src="auth.js"></script>
-    <script>
-        const currentUser = checkAuth();
-        if (!currentUser || currentUser.role !== 'admin') window.location.href = 'home.html';
-
-        let users = [], publicFiles = [], privateFiles = {};
-
-        function loadData() {
-            users = JSON.parse(localStorage.getItem('rakha_users') || '[]');
-            publicFiles = JSON.parse(localStorage.getItem('public_files') || '[]');
-            privateFiles = JSON.parse(localStorage.getItem('private_files') || '{}');
-            renderUsers();
-            renderFiles();
-            renderPending();
-        }
-
-        function renderUsers() {
-            const tbody = document.getElementById('usersTable');
-            tbody.innerHTML = users.filter(u=>u.role!=='admin').map(u => `
-                <tr>
-                    <td>${u.name}</td><td>${u.email}</td><td>${u.role}</td>
-                    <td><span class="badge ${u.status}">${u.status==='active'?'نشط':u.status==='pending'?'معلق':'محظور'}</span></td>
-                    <td>
-                        ${u.status==='pending'?`<button class="btn-icon" onclick="approveUser(${u.id})"><i class="fas fa-check"></i></button>`:''}
-                        <button class="btn-icon danger" onclick="deleteUser(${u.id})"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function renderFiles() {
-            let allFiles = [...publicFiles.map(f=>({...f, folder:'public'}))];
-            Object.entries(privateFiles).forEach(([uid, arr])=> { allFiles.push(...arr.map(f=>({...f, folder:'private', ownerId:uid}))); });
-            allFiles.sort((a,b)=> new Date(b.uploadDate)-new Date(a.uploadDate));
-            document.getElementById('totalPublic').textContent = publicFiles.length;
-            document.getElementById('totalPrivate').textContent = allFiles.length - publicFiles.length;
-            const tbody = document.getElementById('filesTable');
-            tbody.innerHTML = allFiles.map(f => `
-                <tr><td>${f.name}</td><td>${f.uploader}</td><td>${f.folder==='public'?'عام':'خاص'}</td>
-                <td>${new Date(f.uploadDate).toLocaleDateString('ar-SA')}</td>
-                <td><button class="btn-icon danger" onclick="adminDeleteFile('${f.folder}',${f.id},'${f.ownerId||''}')"><i class="fas fa-trash"></i></button></td></tr>
-            `).join('');
-        }
-
-        function renderPending() {
-            const pending = users.filter(u => u.status === 'pending');
-            document.getElementById('pendingTable').innerHTML = pending.map(u => `
-                <tr><td>${u.name}</td><td>${u.email}</td><td>${new Date(u.createdAt).toLocaleDateString('ar-SA')}</td>
-                <td><button class="btn-icon" onclick="approveUser(${u.id})"><i class="fas fa-check"></i></button>
-                <button class="btn-icon danger" onclick="rejectUser(${u.id})"><i class="fas fa-times"></i></button></td></tr>
-            `).join('');
-        }
-
-        window.approveUser = function(id) {
-            const user = users.find(u=>u.id===id);
-            if (user) { user.status = 'active'; localStorage.setItem('rakha_users', JSON.stringify(users)); loadData(); }
-        };
-        window.rejectUser = window.deleteUser = function(id) {
-            if (!confirm('تأكيد الحذف؟')) return;
-            users = users.filter(u=>u.id!==id);
-            localStorage.setItem('rakha_users', JSON.stringify(users));
-            loadData();
-        };
-        window.adminDeleteFile = function(folder, id, ownerId) {
-            if (!confirm('حذف الملف؟')) return;
-            if (folder==='public') {
-                publicFiles = publicFiles.filter(f=>f.id!==id);
-                localStorage.setItem('public_files', JSON.stringify(publicFiles));
-            } else {
-                if (privateFiles[ownerId]) {
-                    privateFiles[ownerId] = privateFiles[ownerId].filter(f=>f.id!==id);
-                    localStorage.setItem('private_files', JSON.stringify(privateFiles));
-                }
-            }
-            loadData();
-        };
-
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', function(){
-            document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-            this.classList.add('active');
-            document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
-            document.getElementById('tab-'+this.dataset.tab).classList.add('active');
-        }));
-
-        document.addEventListener('DOMContentLoaded', ()=>{
-            document.getElementById('userName').textContent = currentUser.name;
-            loadData();
-        });
-    </script>
+  <div class="app-container">
+    <div class="sidebar">
+      <div class="logo"><i class="fas fa-leaf" style="color: #C9A84C; font-size: 2rem;"></i><h2>رخاء</h2><small>للتنمية المستدامة</small></div>
+      <div class="nav">
+        <a href="home.html"><i class="fas fa-calculator"></i> حاسبة الضريبة</a>
+        <a href="files.html"><i class="fas fa-folder-open"></i> الملفات</a>
+        <a href="admin.html" class="active"><i class="fas fa-user-shield"></i> الإدارة</a>
+      </div>
+      <div class="user-info">
+        <i class="fas fa-user-circle"></i><div class="user-details"><div class="user-name" id="sidebarUserName">...</div><div class="user-role" id="sidebarUserRole">...</div></div>
+        <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
+      </div>
+    </div>
+    <div class="main-content">
+      <div class="page-header"><h1><i class="fas fa-user-shield" style="color: #C9A84C;"></i> لوحة الإدارة</h1></div>
+      <div class="card"><h3 class="card-title">إدارة المستخدمين</h3><button class="btn-gold" onclick="openAddUserModal()"><i class="fas fa-plus"></i> إضافة مستخدم</button>
+        <div class="table-responsive"><table id="usersTable"><thead><tr><th>البريد</th><th>الاسم</th><th>الدور</th><th>إجراءات</th></tr></thead><tbody></tbody></table></div>
+      </div>
+      <div class="card"><h3 class="card-title">جميع الملفات</h3><div id="allFilesList" class="file-list"></div></div>
+    </div>
+  </div>
+  <div id="addUserModal" style="display:none; position:fixed; top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;">
+    <div style="background:white;padding:30px;border-radius:16px;width:400px;">
+      <h3>إضافة مستخدم</h3>
+      <input id="newEmail" placeholder="البريد" style="width:100%;margin:10px 0;padding:10px;"><br>
+      <input id="newName" placeholder="الاسم" style="width:100%;margin:10px 0;padding:10px;"><br>
+      <input id="newPassword" type="password" placeholder="كلمة المرور" style="width:100%;margin:10px 0;padding:10px;"><br>
+      <select id="newRole" style="width:100%;padding:10px;"><option value="user">موظف</option><option value="admin">مدير</option></select><br>
+      <button class="btn-primary" onclick="addUser()">حفظ</button><button class="btn-outline" onclick="closeModal()">إلغاء</button>
+    </div>
+  </div>
+  <script src="auth.js"></script>
+  <script src="files-manager.js"></script>
+  <script>
+    let currentUser = null;
+    const USERS_KEY = 'rokhaa_users';
+    document.addEventListener('DOMContentLoaded', ()=>{
+      currentUser = requireAdmin(); if(!currentUser) return;
+      updateSidebarUser(); renderUsersTable(); renderAllFiles();
+    });
+    function getUsers(){ return JSON.parse(localStorage.getItem(USERS_KEY))||[]; }
+    function saveUsers(u){ localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
+    function renderUsersTable(){
+      const users = getUsers();
+      document.querySelector('#usersTable tbody').innerHTML = users.map(u=>`<tr><td>${u.email}</td><td>${u.name}</td><td>${u.role==='admin'?'مدير':'موظف'}</td><td><button onclick="deleteUser('${u.email}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+    }
+    function deleteUser(email){
+      if(email===currentUser.email) return alert('لا يمكنك حذف حسابك');
+      if(!confirm('حذف المستخدم؟')) return;
+      let users = getUsers().filter(u=>u.email!==email);
+      saveUsers(users); renderUsersTable();
+    }
+    function openAddUserModal(){ document.getElementById('addUserModal').style.display='flex'; }
+    function closeModal(){ document.getElementById('addUserModal').style.display='none'; }
+    function addUser(){
+      const email=document.getElementById('newEmail').value.trim(), name=document.getElementById('newName').value.trim(), password=document.getElementById('newPassword').value, role=document.getElementById('newRole').value;
+      if(!email||!name||!password) return alert('الحقول مطلوبة');
+      const users=getUsers(); if(users.find(u=>u.email===email)) return alert('البريد موجود');
+      users.push({email,name,password,role}); saveUsers(users); closeModal(); renderUsersTable();
+    }
+    function renderAllFiles(){
+      const files=getAllFiles(), container=document.getElementById('allFilesList');
+      if(!files.length) return container.innerHTML='<p>لا توجد ملفات</p>';
+      container.innerHTML=files.map(f=>`<div class="file-item"><div><strong>${f.name}</strong> (${f.owner}) ${f.isPublic?'عام':'خاص'}</div><button onclick="downloadFileById('${f.id}')"><i class="fas fa-download"></i></button></div>`).join('');
+    }
+    function downloadFileById(id){ const f=getAllFiles().find(x=>x.id===id); if(f) downloadFile(f); }
+  </script>
 </body>
 </html>
