@@ -1,19 +1,8 @@
 <?php
-session_start();
+require_once 'config.php';
+require_once 'vendor/autoload.php'; // مكتبة Google API
 
-// تهيئة ملفات JSON إذا لم تكن موجودة
-if (!file_exists('users.json')) {
-    $default_users = [
-        ['id' => 1, 'name' => 'مدير النظام', 'email' => 'admin@rakha.sa', 'password' => password_hash('123456', PASSWORD_DEFAULT), 'role' => 'admin', 'status' => 'active', 'created_at' => date('Y-m-d H:i:s')],
-        ['id' => 2, 'name' => 'موظف أول', 'email' => 'user1@rakha.sa', 'password' => password_hash('123456', PASSWORD_DEFAULT), 'role' => 'user', 'status' => 'active', 'created_at' => date('Y-m-d H:i:s')]
-    ];
-    file_put_contents('users.json', json_encode($default_users, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-}
-if (!file_exists('files.json')) {
-    file_put_contents('files.json', json_encode(['public' => [], 'private' => []]));
-}
-
-// إذا كان المستخدم مسجلاً بالفعل، توجيه للوحة التحكم
+// إذا كان المستخدم مسجلاً بالفعل
 if (isset($_SESSION['user'])) {
     header('Location: dashboard.php');
     exit;
@@ -22,16 +11,15 @@ if (isset($_SESSION['user'])) {
 $error = '';
 $success = '';
 
-// معالجة تسجيل الدخول
+// معالجة تسجيل الدخول العادي
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
-    
-    $users = json_decode(file_get_contents('users.json'), true);
+    $users = getUsers();
     foreach ($users as $user) {
         if ($user['email'] === $email && password_verify($password, $user['password'])) {
             if ($user['status'] !== 'active') {
-                $error = 'الحساب غير مفعل، راجع الإدارة';
+                $error = 'الحساب غير مفعل. راجع الإدارة.';
                 break;
             }
             $_SESSION['user'] = [
@@ -47,26 +35,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
     if (!$error) $error = 'بيانات الدخول غير صحيحة';
 }
 
-// معالجة طلب حساب جديد
+// معالجة التسجيل العادي (طلب حساب)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
     $name = trim($_POST['name'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     $confirm = $_POST['confirm'] ?? '';
-    
     if ($password !== $confirm) {
         $error = 'كلمتا المرور غير متطابقتين';
     } elseif (strlen($password) < 6) {
-        $error = 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+        $error = 'كلمة المرور 6 أحرف على الأقل';
     } else {
-        $users = json_decode(file_get_contents('users.json'), true);
+        $users = getUsers();
+        $exists = false;
         foreach ($users as $u) {
-            if ($u['email'] === $email) {
-                $error = 'البريد الإلكتروني مسجل مسبقاً';
-                break;
-            }
+            if ($u['email'] === $email) { $exists = true; break; }
         }
-        if (!$error) {
+        if ($exists) {
+            $error = 'البريد الإلكتروني مسجل مسبقاً';
+        } else {
             $newId = count($users) > 0 ? max(array_column($users, 'id')) + 1 : 1;
             $newUser = [
                 'id' => $newId,
@@ -75,14 +62,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
                 'password' => password_hash($password, PASSWORD_DEFAULT),
                 'role' => 'user',
                 'status' => 'pending',
-                'created_at' => date('Y-m-d H:i:s')
+                'created_at' => date('Y-m-d H:i:s'),
+                'google_id' => null
             ];
             $users[] = $newUser;
-            file_put_contents('users.json', json_encode($users, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-            $success = 'تم تقديم الطلب، بانتظار موافقة الإدارة';
+            saveUsers($users);
+            $success = 'تم تقديم الطلب، بانتظار موافقة الإدارة.';
         }
     }
 }
+
+// إنشاء رابط تسجيل الدخول بـ Google
+$client = new Google_Client();
+$client->setClientId(GOOGLE_CLIENT_ID);
+$client->setClientSecret(GOOGLE_CLIENT_SECRET);
+$client->setRedirectUri(GOOGLE_REDIRECT_URI);
+$client->addScope("email");
+$client->addScope("profile");
+$googleLoginUrl = $client->createAuthUrl();
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -99,17 +96,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
         .auth-card{background:var(--white);border-radius:16px;padding:30px;max-width:450px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,0.2);border:1px solid rgba(212,175,55,0.3);}
         .logo{text-align:center;margin-bottom:25px;}
         .logo i{font-size:40px;color:var(--gold);background:var(--navy);width:70px;height:70px;line-height:70px;border-radius:50%;border:2px solid var(--gold);}
-        .logo h1{font-size:28px;color:var(--navy);margin-top:10px;}
         .tabs{display:flex;gap:5px;margin-bottom:25px;border-bottom:2px solid var(--gray-light);}
         .tab{flex:1;padding:12px;background:none;border:none;color:var(--gray);font-weight:600;cursor:pointer;position:relative;}
         .tab.active{color:var(--navy);}
         .tab.active::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;background:var(--gold);}
         .form{display:flex;flex-direction:column;gap:18px;}
-        .form-group{display:flex;flex-direction:column;gap:5px;}
         .input-wrapper{position:relative;}
         .input-wrapper i{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--gray);}
         .input-wrapper input{width:100%;padding:12px 40px 12px 12px;border:2px solid var(--gray-light);border-radius:8px;font-family:'Cairo';}
         .btn{background:linear-gradient(135deg,var(--gold),#f4d03f);border:none;padding:12px;border-radius:8px;font-weight:700;cursor:pointer;color:#0a1929;width:100%;}
+        .btn-google{background:var(--white);border:1px solid var(--gray-light);color:var(--navy);}
+        .divider{display:flex;align-items:center;text-align:center;margin:20px 0;color:var(--gray);}
+        .divider::before,.divider::after{content:'';flex:1;border-bottom:1px solid var(--gray-light);}
+        .divider span{padding:0 10px;}
         .message{padding:10px;border-radius:8px;margin-top:15px;text-align:center;}
         .error{background:var(--danger);color:white;}
         .success{background:var(--success);color:white;}
@@ -121,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
 <div class="auth-card">
     <div class="logo">
         <i class="fas fa-gem"></i>
-        <h1>رخاء</h1>
+        <h2 style="color:var(--navy); margin-top:10px;">رخاء</h2>
         <p style="color:var(--gray);">بوابة العاملين</p>
     </div>
     <div class="tabs">
@@ -131,39 +130,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
 
     <!-- نموذج تسجيل الدخول -->
     <form method="post" id="loginForm" class="form">
-        <div class="form-group">
-            <label>البريد الإلكتروني</label>
-            <div class="input-wrapper"><i class="fas fa-envelope"></i><input type="email" name="email" placeholder="admin@rakha.sa" required></div>
-        </div>
-        <div class="form-group">
-            <label>كلمة المرور</label>
-            <div class="input-wrapper"><i class="fas fa-lock"></i><input type="password" name="password" placeholder="123456" required></div>
-        </div>
+        <div class="input-wrapper"><i class="fas fa-envelope"></i><input type="email" name="email" placeholder="البريد الإلكتروني" required></div>
+        <div class="input-wrapper"><i class="fas fa-lock"></i><input type="password" name="password" placeholder="كلمة المرور" required></div>
         <button type="submit" name="login" class="btn"><i class="fas fa-sign-in-alt"></i> دخول</button>
-        <p style="text-align:center;color:var(--gray);">خاص بموظفي مكتب رخاء فقط</p>
     </form>
 
     <!-- نموذج طلب حساب -->
     <form method="post" id="registerForm" class="form" style="display:none;">
-        <div class="form-group">
-            <label>الاسم الكامل</label>
-            <div class="input-wrapper"><i class="fas fa-user"></i><input type="text" name="name" required></div>
-        </div>
-        <div class="form-group">
-            <label>البريد الوظيفي</label>
-            <div class="input-wrapper"><i class="fas fa-envelope"></i><input type="email" name="email" required></div>
-        </div>
-        <div class="form-group">
-            <label>كلمة المرور</label>
-            <div class="input-wrapper"><i class="fas fa-lock"></i><input type="password" name="password" required minlength="6"></div>
-        </div>
-        <div class="form-group">
-            <label>تأكيد كلمة المرور</label>
-            <div class="input-wrapper"><i class="fas fa-lock"></i><input type="password" name="confirm" required></div>
-        </div>
+        <div class="input-wrapper"><i class="fas fa-user"></i><input type="text" name="name" placeholder="الاسم الكامل" required></div>
+        <div class="input-wrapper"><i class="fas fa-envelope"></i><input type="email" name="email" placeholder="البريد الوظيفي" required></div>
+        <div class="input-wrapper"><i class="fas fa-lock"></i><input type="password" name="password" placeholder="كلمة المرور" required></div>
+        <div class="input-wrapper"><i class="fas fa-lock"></i><input type="password" name="confirm" placeholder="تأكيد كلمة المرور" required></div>
         <button type="submit" name="register" class="btn"><i class="fas fa-paper-plane"></i> إرسال الطلب</button>
-        <p style="text-align:center;color:var(--gray);">سيتم مراجعة الطلب من الإدارة</p>
     </form>
+
+    <div class="divider"><span>أو</span></div>
+    <a href="<?php echo htmlspecialchars($googleLoginUrl); ?>" class="btn btn-google"><i class="fab fa-google"></i> الدخول بحساب Google</a>
 
     <?php if ($error): ?>
         <div class="message error"><?php echo $error; ?></div>
@@ -172,11 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
     <?php endif; ?>
 
     <div class="footer">
-        <p>حسابات تجريبية:</p>
-        <div class="demo">
-            <span><i class="fas fa-user-tie"></i> admin@rakha.sa / 123456</span><br>
-            <span><i class="fas fa-user"></i> user1@rakha.sa / 123456</span>
-        </div>
+        <p>تجريبي: admin@rakha.sa / 123456 &nbsp;|&nbsp; user1@rakha.sa / 123456</p>
     </div>
 </div>
 <script>
