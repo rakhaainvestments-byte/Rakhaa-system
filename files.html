@@ -1,288 +1,105 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الملفات - رخاء</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>رخاء - إدارة الملفات</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="logo"><i class="fas fa-gem"></i><span>رخاء</span><span class="logo-sub">للعاملين</span></div>
-            <ul class="nav-menu">
-                <li><a href="home.html"><i class="fas fa-home"></i> الرئيسية</a></li>
-                <li><a href="files.html" class="active"><i class="fas fa-folder-open"></i> الملفات</a></li>
-                <li><a href="admin.html" id="adminLink" style="display:none;"><i class="fas fa-cog"></i> لوحة التحكم</a></li>
-            </ul>
-            <div class="nav-actions">
-                <div class="user-profile">
-                    <div class="user-avatar" id="userAvatar"><i class="fas fa-user"></i></div>
-                    <div class="user-dropdown">
-                        <div class="user-info"><span id="userName"></span><span id="userRole"></span></div>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> خروج</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <main class="container">
-        <div class="page-header">
-            <h1><i class="fas fa-folder-open gold-text"></i> ملفات المكتب</h1>
-            <button class="btn-gold" onclick="openUploadModal()"><i class="fas fa-cloud-upload-alt"></i> رفع ملف</button>
-        </div>
-
-        <div class="folders-info">
-            <div class="folder-card public"><i class="fas fa-globe"></i><div><h3>public.json</h3><p>ملفات عامة لجميع الموظفين</p><span id="pubCount">0</span></div></div>
-            <div class="folder-card private"><i class="fas fa-lock"></i><div><h3>private.json</h3><p>ملفاتك الخاصة</p><span id="privCount">0</span></div></div>
-        </div>
-
-        <div class="search-box"><i class="fas fa-search"></i><input type="text" id="searchInput" placeholder="بحث..." onkeyup="filterFiles()"></div>
-
-        <div class="files-tabs">
-            <button class="tab-btn active" data-filter="all">الكل (<span id="allCount">0</span>)</button>
-            <button class="tab-btn" data-filter="public">عام (<span id="tabPubCount">0</span>)</button>
-            <button class="tab-btn" data-filter="private">خاص (<span id="tabPrivCount">0</span>)</button>
-        </div>
-
-        <div id="filesContainer" class="files-grid">جاري التحميل...</div>
-    </main>
-
-    <!-- مودال رفع ملف -->
-    <div id="uploadModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeUploadModal()">&times;</span>
-            <h2>رفع ملف</h2>
-            <form id="uploadForm">
-                <div class="form-group"><label>اسم الملف</label><input type="text" id="fileName" required></div>
-                <div class="form-group"><label>وصف</label><textarea id="fileDesc" rows="2"></textarea></div>
-                <div class="form-group"><label>الملف</label><input type="file" id="fileInput" required></div>
-                <div class="form-group">
-                    <label>مكان الحفظ</label>
-                    <div class="folder-select">
-                        <label><input type="radio" name="target" value="public" checked> <span class="folder-label public"><i class="fas fa-globe"></i> عام (public.json)</span></label>
-                        <label><input type="radio" name="target" value="private"> <span class="folder-label private"><i class="fas fa-lock"></i> خاص (private.json)</span></label>
-                    </div>
-                </div>
-                <button type="submit" class="btn-gold btn-block">رفع</button>
-            </form>
-        </div>
+  <div class="app-container">
+    <div class="sidebar">
+      <div class="logo">
+        <i class="fas fa-leaf" style="color: #C9A84C; font-size: 2rem;"></i>
+        <h2>رخاء</h2><small>للتنمية المستدامة</small>
+      </div>
+      <div class="nav">
+        <a href="home.html"><i class="fas fa-calculator"></i> حاسبة الضريبة</a>
+        <a href="files.html" class="active"><i class="fas fa-folder-open"></i> الملفات</a>
+        <a href="admin.html" id="adminNavLink" style="display: none;"><i class="fas fa-user-shield"></i> الإدارة</a>
+      </div>
+      <div class="user-info">
+        <i class="fas fa-user-circle"></i>
+        <div class="user-details"><div class="user-name" id="sidebarUserName">...</div><div class="user-role" id="sidebarUserRole">...</div></div>
+        <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
+      </div>
     </div>
 
-    <!-- مودال معاينة -->
-    <div id="previewModal" class="modal">
-        <div class="modal-content modal-large">
-            <span class="close" onclick="closePreviewModal()">&times;</span>
-            <h2 id="previewTitle"></h2>
-            <div id="previewContent"></div>
-        </div>
+    <div class="main-content">
+      <div class="page-header">
+        <h1><i class="fas fa-folder-open" style="color: #C9A84C; margin-left: 10px;"></i>إدارة الملفات</h1>
+        <button class="btn-gold" onclick="document.getElementById('uploadFileInput').click()"><i class="fas fa-upload"></i> رفع ملف جديد</button>
+      </div>
+      <input type="file" id="uploadFileInput" style="display: none;" onchange="handleFileUpload(this)">
+
+      <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('myFiles')">ملفاتي</button>
+        <button class="tab-btn" onclick="showTab('publicFiles')">الملفات العامة</button>
+      </div>
+
+      <div id="myFilesTab" class="tab-content">
+        <div class="card"><h3 class="card-title">ملفاتي الخاصة</h3><div id="myFilesList" class="file-list"></div></div>
+      </div>
+      <div id="publicFilesTab" class="tab-content" style="display: none;">
+        <div class="card"><h3 class="card-title">الملفات العامة</h3><div id="publicFilesList" class="file-list"></div></div>
+      </div>
     </div>
-
-    <script src="auth.js"></script>
-    <script>
-        const currentUser = checkAuth();
-        if (!currentUser) window.location.href = 'index.html';
-
-        let publicFiles = [], privateFiles = [], currentFilter = 'all', searchTerm = '';
-
-        function updateUI() {
-            document.getElementById('userName').textContent = currentUser.name;
-            document.getElementById('userRole').textContent = currentUser.role==='admin'?'مدير':'موظف';
-            if (currentUser.role==='admin') document.getElementById('adminLink').style.display='block';
-            if (currentUser.picture) document.getElementById('userAvatar').innerHTML = `<img src="${currentUser.picture}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
-        }
-
-        function loadFiles() {
-            publicFiles = JSON.parse(localStorage.getItem('public_files') || '[]');
-            const allPrivate = JSON.parse(localStorage.getItem('private_files') || '{}');
-            privateFiles = allPrivate[currentUser.id] || [];
-            updateCounters();
-            displayFiles();
-        }
-
-        function updateCounters() {
-            document.getElementById('pubCount').textContent = publicFiles.length;
-            document.getElementById('privCount').textContent = privateFiles.length;
-            document.getElementById('allCount').textContent = publicFiles.length + privateFiles.length;
-            document.getElementById('tabPubCount').textContent = publicFiles.length;
-            document.getElementById('tabPrivCount').textContent = privateFiles.length;
-        }
-
-        function displayFiles() {
-            let files = [];
-            if (currentFilter === 'all') files = [...publicFiles.map(f=>({...f, folder:'public'})), ...privateFiles.map(f=>({...f, folder:'private'}))];
-            else if (currentFilter === 'public') files = publicFiles.map(f=>({...f, folder:'public'}));
-            else files = privateFiles.map(f=>({...f, folder:'private'}));
-            
-            if (searchTerm) files = files.filter(f => f.name.includes(searchTerm) || (f.description||'').includes(searchTerm));
-            files.sort((a,b)=> new Date(b.uploadDate) - new Date(a.uploadDate));
-            
-            const container = document.getElementById('filesContainer');
-            if (!files.length) {
-                container.innerHTML = `<div class="empty-state"><i class="fas fa-folder-open"></i><p>لا توجد ملفات</p></div>`;
-                return;
-            }
-            container.innerHTML = files.map(f => `
-                <div class="file-card ${f.folder==='public'?'public-file':'private-file'}">
-                    <div class="file-card-header"><i class="fas ${getIcon(f.type)}"></i><span class="badge ${f.folder}">${f.folder==='public'?'عام':'خاص'}</span></div>
-                    <h4>${f.name}</h4><p>${f.description||''}</p>
-                    <div class="file-meta"><span><i class="fas fa-user"></i>${f.uploader}</span><span><i class="fas fa-calendar"></i>${new Date(f.uploadDate).toLocaleDateString('ar-SA')}</span></div>
-                    <div class="file-actions">
-                        <button class="btn-icon" onclick="previewFile('${f.folder}',${f.id})"><i class="fas fa-eye"></i></button>
-                        <button class="btn-icon" onclick="downloadFile('${f.folder}',${f.id})"><i class="fas fa-download"></i></button>
-                        ${(f.uploaderId===currentUser.id || currentUser.role==='admin') ? `
-                        <button class="btn-icon" onclick="moveFile('${f.folder}',${f.id})"><i class="fas fa-exchange-alt"></i></button>
-                        <button class="btn-icon danger" onclick="deleteFile('${f.folder}',${f.id})"><i class="fas fa-trash"></i></button>` : ''}
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function getIcon(type) {
-            if (type?.includes('pdf')) return 'fa-file-pdf';
-            if (type?.includes('excel')||type?.includes('spreadsheet')) return 'fa-file-excel';
-            if (type?.includes('word')||type?.includes('document')) return 'fa-file-word';
-            if (type?.includes('image')) return 'fa-file-image';
-            return 'fa-file';
-        }
-
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', function(){
-            document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-            this.classList.add('active');
-            currentFilter = this.dataset.filter;
-            displayFiles();
-        }));
-
-        function filterFiles() {
-            searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
-            displayFiles();
-        }
-
-        function openUploadModal() { document.getElementById('uploadModal').style.display='flex'; }
-        function closeUploadModal() { document.getElementById('uploadModal').style.display='none'; document.getElementById('uploadForm').reset(); }
-
-        document.getElementById('uploadForm').addEventListener('submit', function(e){
-            e.preventDefault();
-            const name = document.getElementById('fileName').value.trim();
-            const desc = document.getElementById('fileDesc').value.trim();
-            const file = document.getElementById('fileInput').files[0];
-            const target = document.querySelector('input[name="target"]:checked').value;
-            if (!file) return alert('اختر ملفاً');
-            if (file.size > 10*1024*1024) return alert('الحد الأقصى 10 ميجابايت');
-
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                const newFile = {
-                    id: Date.now(),
-                    name: name || file.name.replace(/\.[^/.]+$/, ''),
-                    description: desc,
-                    originalName: file.name,
-                    type: file.type,
-                    size: file.size,
-                    data: ev.target.result.split(',')[1],
-                    uploader: currentUser.name,
-                    uploaderId: currentUser.id,
-                    uploadDate: new Date().toISOString(),
-                    downloads: 0, views: 0
-                };
-                if (target === 'public') {
-                    publicFiles.push(newFile);
-                    localStorage.setItem('public_files', JSON.stringify(publicFiles));
-                } else {
-                    const allPrivate = JSON.parse(localStorage.getItem('private_files') || '{}');
-                    if (!allPrivate[currentUser.id]) allPrivate[currentUser.id] = [];
-                    allPrivate[currentUser.id].push(newFile);
-                    localStorage.setItem('private_files', JSON.stringify(allPrivate));
-                    privateFiles = allPrivate[currentUser.id];
-                }
-                closeUploadModal();
-                loadFiles();
-                alert('تم الرفع بنجاح');
-            };
-            reader.readAsDataURL(file);
-        });
-
-        function previewFile(folder, id) {
-            const file = (folder==='public'? publicFiles : privateFiles).find(f=>f.id===id);
-            if (!file) return;
-            file.views++;
-            if (folder==='public') localStorage.setItem('public_files', JSON.stringify(publicFiles));
-            else { const all=JSON.parse(localStorage.getItem('private_files')||'{}'); all[currentUser.id]=privateFiles; localStorage.setItem('private_files', JSON.stringify(all)); }
-            
-            const modal = document.getElementById('previewModal');
-            document.getElementById('previewTitle').textContent = file.name;
-            const content = document.getElementById('previewContent');
-            if (file.type?.includes('image')) content.innerHTML = `<img src="data:${file.type};base64,${file.data}" style="max-width:100%;">`;
-            else if (file.type?.includes('pdf')) content.innerHTML = `<iframe src="data:application/pdf;base64,${file.data}" width="100%" height="500"></iframe>`;
-            else content.innerHTML = `<p>لا يمكن معاينة هذا النوع. <button onclick="downloadFile('${folder}',${id})">تنزيل</button></p>`;
-            modal.style.display='flex';
-        }
-        function closePreviewModal() { document.getElementById('previewModal').style.display='none'; }
-        
-        function downloadFile(folder, id) {
-            const file = (folder==='public'? publicFiles : privateFiles).find(f=>f.id===id);
-            if (!file) return;
-            file.downloads++;
-            if (folder==='public') localStorage.setItem('public_files', JSON.stringify(publicFiles));
-            else { const all=JSON.parse(localStorage.getItem('private_files')||'{}'); all[currentUser.id]=privateFiles; localStorage.setItem('private_files', JSON.stringify(all)); }
-            const a = document.createElement('a');
-            a.href = `data:${file.type};base64,${file.data}`;
-            a.download = file.originalName;
-            a.click();
-        }
-
-        function moveFile(from, id) {
-            const sourceArr = from==='public' ? publicFiles : privateFiles;
-            const file = sourceArr.find(f=>f.id===id);
-            if (!file) return;
-            if (currentUser.id !== file.uploaderId && currentUser.role!=='admin') return alert('غير مصرح');
-            if (!confirm(`نقل الملف إلى ${from==='public'?'الخاص':'العام'}؟`)) return;
-            
-            if (from==='public') {
-                publicFiles = publicFiles.filter(f=>f.id!==id);
-                localStorage.setItem('public_files', JSON.stringify(publicFiles));
-                const allPriv = JSON.parse(localStorage.getItem('private_files')||'{}');
-                if (!allPriv[currentUser.id]) allPriv[currentUser.id] = [];
-                allPriv[currentUser.id].push(file);
-                localStorage.setItem('private_files', JSON.stringify(allPriv));
-            } else {
-                privateFiles = privateFiles.filter(f=>f.id!==id);
-                const allPriv = JSON.parse(localStorage.getItem('private_files')||'{}');
-                allPriv[currentUser.id] = privateFiles;
-                localStorage.setItem('private_files', JSON.stringify(allPriv));
-                publicFiles.push(file);
-                localStorage.setItem('public_files', JSON.stringify(publicFiles));
-            }
-            loadFiles();
-        }
-
-        function deleteFile(folder, id) {
-            const file = (folder==='public'? publicFiles : privateFiles).find(f=>f.id===id);
-            if (!file) return;
-            if (currentUser.id !== file.uploaderId && currentUser.role!=='admin') return alert('غير مصرح');
-            if (!confirm('حذف الملف؟')) return;
-            if (folder==='public') {
-                publicFiles = publicFiles.filter(f=>f.id!==id);
-                localStorage.setItem('public_files', JSON.stringify(publicFiles));
-            } else {
-                privateFiles = privateFiles.filter(f=>f.id!==id);
-                const allPriv = JSON.parse(localStorage.getItem('private_files')||'{}');
-                allPriv[currentUser.id] = privateFiles;
-                localStorage.setItem('private_files', JSON.stringify(allPriv));
-            }
-            loadFiles();
-        }
-
-        document.addEventListener('DOMContentLoaded', ()=>{
-            updateUI();
-            loadFiles();
-        });
-        window.logout = function(){ localStorage.removeItem('rakha_current_user'); window.location.href='index.html'; };
-        window.addEventListener('click', (e)=>{ if (e.target.classList.contains('modal')) e.target.style.display='none'; });
-    </script>
+  </div>
+  <script src="auth.js"></script>
+  <script src="files-manager.js"></script>
+  <script>
+    let currentUser = null;
+    document.addEventListener('DOMContentLoaded', function() {
+      currentUser = requireAuth();
+      updateSidebarUser();
+      renderFiles();
+    });
+    function showTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+      if (tab === 'myFiles') {
+        document.querySelector('.tab-btn:first-child').classList.add('active');
+        document.getElementById('myFilesTab').style.display = 'block';
+      } else {
+        document.querySelector('.tab-btn:last-child').classList.add('active');
+        document.getElementById('publicFilesTab').style.display = 'block';
+      }
+    }
+    function renderFiles() { renderMyFiles(); renderPublicFiles(); }
+    function renderMyFiles() {
+      const files = getUserFiles(currentUser.email);
+      const container = document.getElementById('myFilesList');
+      if (!files.length) return container.innerHTML = '<p>لا توجد ملفات خاصة</p>';
+      container.innerHTML = files.map(f => `
+        <div class="file-item"><div class="file-info"><i class="fas fa-file-excel"></i><div><strong>${f.name}</strong><br><small>${new Date(f.uploadDate).toLocaleString()}</small> ${f.isPublic?'<span class="badge gold">عام</span>':'<span class="badge">خاص</span>'}</div></div>
+        <div class="file-actions"><button onclick="downloadFileById('${f.id}')"><i class="fas fa-download"></i></button><button onclick="deleteFileById('${f.id}')"><i class="fas fa-trash"></i></button></div></div>`).join('');
+    }
+    function renderPublicFiles() {
+      const files = getPublicFiles();
+      const container = document.getElementById('publicFilesList');
+      if (!files.length) return container.innerHTML = '<p>لا توجد ملفات عامة</p>';
+      container.innerHTML = files.map(f => `
+        <div class="file-item"><div class="file-info"><i class="fas fa-file"></i><div><strong>${f.name}</strong><br><small>${new Date(f.uploadDate).toLocaleString()} - ${f.owner}</small></div></div>
+        <div class="file-actions"><button onclick="downloadFileById('${f.id}')"><i class="fas fa-download"></i></button>${(currentUser.role==='admin'||currentUser.email===f.owner)?`<button onclick="deleteFileById('${f.id}')"><i class="fas fa-trash"></i></button>`:''}</div></div>`).join('');
+    }
+    function handleFileUpload(input) {
+      const file = input.files[0]; if(!file) return;
+      const isPublic = confirm('هل تريد جعل الملف عاماً؟');
+      const reader = new FileReader();
+      reader.onload = e => {
+        addFile({ id: Date.now()+'-'+Math.random().toString(36), name: file.name, type: file.type, size: file.size, uploadDate: new Date().toISOString(), owner: currentUser.email, isPublic, data: e.target.result.split(',')[1] });
+        renderFiles(); input.value = ''; alert('تم الرفع');
+      };
+      reader.readAsDataURL(file);
+    }
+    function downloadFileById(id) { const f = getAllFiles().find(x=>x.id===id); if(f) downloadFile(f); }
+    function deleteFileById(id) {
+      if(!confirm('حذف الملف؟')) return;
+      const f = getAllFiles().find(x=>x.id===id);
+      if(f && (currentUser.role==='admin' || currentUser.email===f.owner)) { deleteFile(id); renderFiles(); }
+      else alert('غير مصرح');
+    }
+  </script>
 </body>
 </html>
