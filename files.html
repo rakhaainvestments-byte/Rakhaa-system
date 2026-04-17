@@ -1,105 +1,104 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>رخاء - إدارة الملفات</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رخاء - إدارة الملفات</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="app-container">
-    <div class="sidebar">
-      <div class="logo">
-        <i class="fas fa-leaf" style="color: #C9A84C; font-size: 2rem;"></i>
-        <h2>رخاء</h2><small>للتنمية المستدامة</small>
-      </div>
-      <div class="nav">
-        <a href="home.html"><i class="fas fa-calculator"></i> حاسبة الضريبة</a>
-        <a href="files.html" class="active"><i class="fas fa-folder-open"></i> الملفات</a>
-        <a href="admin.html" id="adminNavLink" style="display: none;"><i class="fas fa-user-shield"></i> الإدارة</a>
-      </div>
-      <div class="user-info">
-        <i class="fas fa-user-circle"></i>
-        <div class="user-details"><div class="user-name" id="sidebarUserName">...</div><div class="user-role" id="sidebarUserRole">...</div></div>
-        <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
-      </div>
-    </div>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <span class="brand-icon">🌿</span>
+                <span>رخاء للتنمية المستدامة</span>
+            </div>
+            <div class="nav-menu">
+                <a href="home.html" class="nav-link">الرئيسية</a>
+                <a href="files.html" class="nav-link active">الملفات</a>
+                <a href="admin.html" class="nav-link admin-only" style="display:none;">المشرف</a>
+                <div class="user-menu">
+                    <span id="userName" class="user-name"></span>
+                    <button id="logoutBtn" class="btn btn-outline btn-sm">تسجيل الخروج</button>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-    <div class="main-content">
-      <div class="page-header">
-        <h1><i class="fas fa-folder-open" style="color: #C9A84C; margin-left: 10px;"></i>إدارة الملفات</h1>
-        <button class="btn-gold" onclick="document.getElementById('uploadFileInput').click()"><i class="fas fa-upload"></i> رفع ملف جديد</button>
-      </div>
-      <input type="file" id="uploadFileInput" style="display: none;" onchange="handleFileUpload(this)">
+    <main class="container">
+        <div class="page-header">
+            <h1>إدارة الملفات</h1>
+            <p>رفع وتنظيم ملفات Excel للاستخدام المشترك أو الخاص</p>
+        </div>
 
-      <div class="tabs">
-        <button class="tab-btn active" onclick="showTab('myFiles')">ملفاتي</button>
-        <button class="tab-btn" onclick="showTab('publicFiles')">الملفات العامة</button>
-      </div>
+        <!-- رفع ملف جديد -->
+        <div class="upload-file-section card">
+            <h3>رفع ملف جديد</h3>
+            <form id="uploadFileForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fileUpload">اختر ملف Excel</label>
+                        <input type="file" id="fileUpload" accept=".xlsx,.xls" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="fileName">اسم الملف</label>
+                        <input type="text" id="fileName" placeholder="أدخل اسماً للملف" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>نوع الملف</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="fileType" value="public" checked> عام (للجميع)</label>
+                            <label><input type="radio" name="fileType" value="private"> خاص (فقط لك)</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">رفع الملف</button>
+                    </div>
+                </div>
+            </form>
+        </div>
 
-      <div id="myFilesTab" class="tab-content">
-        <div class="card"><h3 class="card-title">ملفاتي الخاصة</h3><div id="myFilesList" class="file-list"></div></div>
-      </div>
-      <div id="publicFilesTab" class="tab-content" style="display: none;">
-        <div class="card"><h3 class="card-title">الملفات العامة</h3><div id="publicFilesList" class="file-list"></div></div>
-      </div>
-    </div>
-  </div>
-  <script src="auth.js"></script>
-  <script src="files-manager.js"></script>
-  <script>
-    let currentUser = null;
-    document.addEventListener('DOMContentLoaded', function() {
-      currentUser = requireAuth();
-      updateSidebarUser();
-      renderFiles();
-    });
-    function showTab(tab) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-      if (tab === 'myFiles') {
-        document.querySelector('.tab-btn:first-child').classList.add('active');
-        document.getElementById('myFilesTab').style.display = 'block';
-      } else {
-        document.querySelector('.tab-btn:last-child').classList.add('active');
-        document.getElementById('publicFilesTab').style.display = 'block';
-      }
-    }
-    function renderFiles() { renderMyFiles(); renderPublicFiles(); }
-    function renderMyFiles() {
-      const files = getUserFiles(currentUser.email);
-      const container = document.getElementById('myFilesList');
-      if (!files.length) return container.innerHTML = '<p>لا توجد ملفات خاصة</p>';
-      container.innerHTML = files.map(f => `
-        <div class="file-item"><div class="file-info"><i class="fas fa-file-excel"></i><div><strong>${f.name}</strong><br><small>${new Date(f.uploadDate).toLocaleString()}</small> ${f.isPublic?'<span class="badge gold">عام</span>':'<span class="badge">خاص</span>'}</div></div>
-        <div class="file-actions"><button onclick="downloadFileById('${f.id}')"><i class="fas fa-download"></i></button><button onclick="deleteFileById('${f.id}')"><i class="fas fa-trash"></i></button></div></div>`).join('');
-    }
-    function renderPublicFiles() {
-      const files = getPublicFiles();
-      const container = document.getElementById('publicFilesList');
-      if (!files.length) return container.innerHTML = '<p>لا توجد ملفات عامة</p>';
-      container.innerHTML = files.map(f => `
-        <div class="file-item"><div class="file-info"><i class="fas fa-file"></i><div><strong>${f.name}</strong><br><small>${new Date(f.uploadDate).toLocaleString()} - ${f.owner}</small></div></div>
-        <div class="file-actions"><button onclick="downloadFileById('${f.id}')"><i class="fas fa-download"></i></button>${(currentUser.role==='admin'||currentUser.email===f.owner)?`<button onclick="deleteFileById('${f.id}')"><i class="fas fa-trash"></i></button>`:''}</div></div>`).join('');
-    }
-    function handleFileUpload(input) {
-      const file = input.files[0]; if(!file) return;
-      const isPublic = confirm('هل تريد جعل الملف عاماً؟');
-      const reader = new FileReader();
-      reader.onload = e => {
-        addFile({ id: Date.now()+'-'+Math.random().toString(36), name: file.name, type: file.type, size: file.size, uploadDate: new Date().toISOString(), owner: currentUser.email, isPublic, data: e.target.result.split(',')[1] });
-        renderFiles(); input.value = ''; alert('تم الرفع');
-      };
-      reader.readAsDataURL(file);
-    }
-    function downloadFileById(id) { const f = getAllFiles().find(x=>x.id===id); if(f) downloadFile(f); }
-    function deleteFileById(id) {
-      if(!confirm('حذف الملف؟')) return;
-      const f = getAllFiles().find(x=>x.id===id);
-      if(f && (currentUser.role==='admin' || currentUser.email===f.owner)) { deleteFile(id); renderFiles(); }
-      else alert('غير مصرح');
-    }
-  </script>
+        <!-- تبويبات الملفات -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="public">الملفات العامة</button>
+            <button class="tab-btn" data-tab="private">ملفاتي الخاصة</button>
+        </div>
+
+        <!-- قائمة الملفات العامة -->
+        <div id="publicTab" class="tab-content active">
+            <div class="files-grid" id="publicFilesList"></div>
+        </div>
+
+        <!-- قائمة الملفات الخاصة -->
+        <div id="privateTab" class="tab-content">
+            <div class="files-grid" id="privateFilesList"></div>
+        </div>
+    </main>
+
+    <script src="storage.js"></script>
+    <script src="auth.js"></script>
+    <script src="files.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!Auth.isLoggedIn()) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const currentUser = Auth.getCurrentUser();
+            document.getElementById('userName').textContent = currentUser.name || currentUser.email;
+
+            if (currentUser.role === 'admin') {
+                document.querySelector('.admin-only').style.display = 'block';
+            }
+
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                Auth.logout();
+                window.location.href = 'index.html';
+            });
+
+            FileManager.init(currentUser);
+        });
+    </script>
 </body>
 </html>
